@@ -7,6 +7,8 @@ import edu.sjsu.expressnest.postservice.util.PrivacyType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,6 +36,7 @@ public class Post {
 	@Column(name="post_text")
 	private String postText;
 	
+	@Enumerated(EnumType.STRING)
 	@Column(name="privacy")
 	private PrivacyType privacy;
 	

@@ -5,6 +5,8 @@ import java.util.Date;
 import edu.sjsu.expressnest.postservice.util.AttachmentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,11 +28,12 @@ public class Attachment {
     @SequenceGenerator(name = "attachment_seq_gen", sequenceName = "en_attachment_id_seq", allocationSize = 1)
 	private long attachmentId;
 	
+	@Enumerated(EnumType.STRING)
 	@Column(name = "attachment_type")
 	private AttachmentType attachmentType;
 	
 	@Column(name = "attachment_ref")
-	private long attachmentRef;
+	private String attachmentRef;
 	
 	@Column(name="created_at")
 	private Date createdAt;
@@ -45,8 +48,7 @@ public class Attachment {
 	@JoinColumn(name = "post_id")
 	private Post post;
 	
-	@ManyToOne
-	@JoinColumn(name = "user_id")
-	private User user;
+	@Column(name="user_id")
+	private long userId;
 
 }

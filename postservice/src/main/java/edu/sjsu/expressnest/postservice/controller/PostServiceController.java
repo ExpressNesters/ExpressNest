@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.sjsu.expressnest.postservice.dto.PostDTO;
-import edu.sjsu.expressnest.postservice.dto.PostResponseDTO;
 import edu.sjsu.expressnest.postservice.service.PostService;
 
 @RestController
@@ -29,17 +28,17 @@ public class PostServiceController {
 	}
 	
 	@GetMapping("/getPostByPostId")
-	public ResponseEntity<PostResponseDTO> getPostByPostId(@RequestParam long postId) {
+	public ResponseEntity<PostDTO> getPostByPostId(@RequestParam long postId) {
 		return null;
 	}
 	
 	@GetMapping("/getPostsByUserId")
-	public ResponseEntity<PostResponseDTO> getPostsByUserId(@RequestParam long userId) {
+	public ResponseEntity<PostDTO> getPostsByUserId(@RequestParam long userId) {
 		return null;
 	}
 	
 	@GetMapping("/getPostsByPostIds")
-	public ResponseEntity<PostResponseDTO> getPostsByPostIds(@RequestParam List<Long> postId) {
+	public ResponseEntity<PostDTO> getPostsByPostIds(@RequestParam List<Long> postId) {
 		return null;
 	}
 	
@@ -50,12 +49,12 @@ public class PostServiceController {
 	}
 	
 	@PostMapping("/updatePost")
-	public ResponseEntity<PostResponseDTO> updatePost(@RequestBody PostDTO postDTO) {
+	public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO postDTO) {
 		return null;
 	}
 	
 	@PostMapping("/deletePost")
-	public ResponseEntity<PostResponseDTO> deletePost(@RequestBody long postId) {
+	public ResponseEntity<PostDTO> deletePost(@RequestBody long postId) {
 		return null;
 	}
 

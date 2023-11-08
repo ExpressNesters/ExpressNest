@@ -38,6 +38,7 @@ CREATE TABLE en_reactions (
     post_id BIGINT NOT NULL,
     reaction_type VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 

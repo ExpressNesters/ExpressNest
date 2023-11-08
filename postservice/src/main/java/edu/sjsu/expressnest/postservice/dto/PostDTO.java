@@ -15,9 +15,9 @@ public class PostDTO {
 	private long postId;
 	private String postText;
 	private PrivacyType privacy;
-	private List<AttachmentDTO> attachments;
-	private List<CommentDTO> comments;
-	private List<ReactionDTO> reactions;
+	private List<AttachmentDTO> attachmentDTOs;
+	private List<CommentDTO> commentDTOs;
+	private List<ReactionDTO> reactionDTOs;
 	private Date createdAt;
 	private Date updatedAt;
 	private Date deletedAt;

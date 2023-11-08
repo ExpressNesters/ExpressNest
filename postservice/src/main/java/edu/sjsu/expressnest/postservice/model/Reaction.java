@@ -5,6 +5,8 @@ import java.util.Date;
 import edu.sjsu.expressnest.postservice.util.ReactionType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,6 +28,7 @@ public class Reaction {
     @SequenceGenerator(name = "reaction_seq_gen", sequenceName = "en_reaction_id_seq", allocationSize = 1)
 	private long reactionId;
 	
+	@Enumerated(EnumType.STRING)
 	@Column(name = "reaction_type")
 	private ReactionType reactionType;
 	
@@ -42,8 +45,7 @@ public class Reaction {
 	@JoinColumn(name = "post_id")
 	private Post post;
 	
-	@ManyToOne
-	@JoinColumn(name = "user_id")
-	private User user;
+	@Column(name="user_id")
+	private long userId;
 
 }

@@ -10,8 +10,10 @@ import lombok.Data;
 @Builder
 public class ReactionDTO {
 	
+	private long reactionId;
 	private ReactionType reactionType;
 	private long userId;
+	private long postId;
 	private Date createdAt;
 	private Date updatedAt;
 	private Date deletedAt;

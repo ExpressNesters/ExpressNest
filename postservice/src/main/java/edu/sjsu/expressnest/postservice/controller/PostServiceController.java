@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,10 +15,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.sjsu.expressnest.postservice.dto.PostDTO;
+import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
 import edu.sjsu.expressnest.postservice.service.PostService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/post")
+@Validated
 public class PostServiceController {
 	
 	@Autowired
@@ -28,8 +35,9 @@ public class PostServiceController {
 	}
 	
 	@GetMapping("/getPostByPostId")
-	public ResponseEntity<PostDTO> getPostByPostId(@RequestParam long postId) {
-		return null;
+	public ResponseEntity<PostDTO> getPostByPostId(@NotNull @Positive @RequestParam long postId) throws ResourceNotFoundException {
+		PostDTO retrievedPost = postService.getPostByPostId(postId);
+		return new ResponseEntity<PostDTO>(retrievedPost, HttpStatus.OK);
 	}
 	
 	@GetMapping("/getPostsByUserId")
@@ -43,9 +51,9 @@ public class PostServiceController {
 	}
 	
 	@PostMapping("/createPost")
-	public ResponseEntity<PostDTO> createPost(@RequestBody PostDTO postDTO) {
+	public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDTO, BindingResult result) {
 		PostDTO createdPostDTO = postService.createPost(postDTO);
-		return new ResponseEntity<>(createdPostDTO, HttpStatus.CREATED);
+		return new ResponseEntity<PostDTO>(createdPostDTO, HttpStatus.CREATED);
 	}
 	
 	@PostMapping("/updatePost")

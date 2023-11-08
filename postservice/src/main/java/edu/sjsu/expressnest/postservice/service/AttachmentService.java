@@ -20,7 +20,7 @@ public class AttachmentService {
 	public void mapAttachments(PostDTO postDTO, Post postEntity) {
 		List<Attachment> attachments = postDTO.getAttachmentDTOs().stream()
 		        .map(attachmentMapper::toAttachment)
-		        .peek(attachment -> attachment.setPost(postEntity)) // Set the post in the service layer
+		        .peek(attachment -> attachment.setPost(postEntity)) // Setting the post in the service layer
 		        .collect(Collectors.toList());
 		postEntity.setAttachments(attachments);
 	}

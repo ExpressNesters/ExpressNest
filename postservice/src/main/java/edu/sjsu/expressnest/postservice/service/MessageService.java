@@ -8,12 +8,12 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ValidationMessageService {
+public class MessageService {
 
 	@Autowired
 	private MessageSource messageSource;
 	
-	public String getValidationMessage(String messageKey, Object... params) {
+	public String getMessage(String messageKey, Object... params) {
 		Locale locale = LocaleContextHolder.getLocale();
 		return messageSource.getMessage(messageKey, params, locale);
 	}

@@ -52,3 +52,10 @@ CREATE TABLE en_attachments (
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE
 );
+
+CREATE TABLE en_users (
+    user_id BIGINT PRIMARY KEY,
+    username VARCHAR(255),
+    password VARCHAR(255),
+    email VARCHAR(255)
+)

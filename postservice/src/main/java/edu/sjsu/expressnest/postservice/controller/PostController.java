@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,15 +23,10 @@ import jakarta.validation.constraints.Positive;
 @RestController
 @RequestMapping("/post")
 @Validated
-public class PostServiceController {
+public class PostController {
 	
 	@Autowired
 	PostService postService;
-	
-	@GetMapping("/greeting")
-	public String greeting(@RequestParam String name) {
-		return "Hello " + name;
-	}
 	
 	@GetMapping("/getPostByPostId")
 	public ResponseEntity<PostDTO> getPostByPostId(@NotNull @Positive @RequestParam long postId) throws ResourceNotFoundException {
@@ -41,17 +35,19 @@ public class PostServiceController {
 	}
 	
 	@GetMapping("/getPostsByUserId")
-	public ResponseEntity<PostDTO> getPostsByUserId(@RequestParam long userId) {
-		return null;
+	public ResponseEntity<List<PostDTO>> getPostsByUserId(@NotNull @Positive @RequestParam long userId) throws ResourceNotFoundException {
+		List<PostDTO> retrievedPosts = postService.getPostsByUserId(userId);
+		return new ResponseEntity<List<PostDTO>>(retrievedPosts, HttpStatus.OK);
 	}
-	
+	                
 	@GetMapping("/getPostsByPostIds")
-	public ResponseEntity<PostDTO> getPostsByPostIds(@RequestParam List<Long> postId) {
-		return null;
+	public ResponseEntity<List<PostDTO>> getPostsByPostIds(@NotNull @RequestParam List<Long> postIds) {
+		List<PostDTO> retrievedPosts = postService.getPostsByPostIds(postIds);
+		return new ResponseEntity<List<PostDTO>>(retrievedPosts, HttpStatus.OK);
 	}
 	
 	@PostMapping("/createPost")
-	public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDTO, BindingResult result) {
+	public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDTO) {
 		PostDTO createdPostDTO = postService.createPost(postDTO);
 		return new ResponseEntity<PostDTO>(createdPostDTO, HttpStatus.CREATED);
 	}
@@ -62,8 +58,9 @@ public class PostServiceController {
 	}
 	
 	@PostMapping("/deletePost")
-	public ResponseEntity<PostDTO> deletePost(@RequestBody long postId) {
-		return null;
+	public ResponseEntity<String> deletePost(@NotNull @Positive @RequestBody long postId) throws ResourceNotFoundException {
+		String postDeleteMessage = postService.deletePost(postId);
+		return new ResponseEntity<String>(postDeleteMessage, HttpStatus.OK);
 	}
 
 }

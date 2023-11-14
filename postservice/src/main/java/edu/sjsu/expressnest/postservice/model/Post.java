@@ -44,6 +44,12 @@ public class Post {
 	@Column(name="privacy")
 	private PrivacyType privacy;
 	
+	@Column(name="total_comments")
+	private int totalNoOfComments;
+	
+	@Column(name="total_reactions")
+	private int totalNoOfReactions;
+	
 	@Column(name="created_at")
 	private Date createdAt;
 	

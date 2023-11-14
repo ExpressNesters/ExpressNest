@@ -12,11 +12,13 @@ CREATE TABLE en_users (
     email VARCHAR(255) NOT NULL
 )
 
-CREATE TABLE en_posts (
+CREATE TABLE en_posts1 (
     post_id BIGINT PRIMARY KEY DEFAULT nextval('en_post_id_seq'),
     user_id BIGINT NOT NULL,
     post_text TEXT NOT NUll,
     privacy VARCHAR(255),
+    total_comments BIGINT,
+    total_reactions BIGINT,
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE

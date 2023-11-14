@@ -1,18 +1,24 @@
 package edu.sjsu.expressnest.postservice.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.sjsu.expressnest.postservice.dto.CommentDTO;
+import edu.sjsu.expressnest.postservice.dto.request.CreateCommentRequest;
+import edu.sjsu.expressnest.postservice.dto.request.UpdateCommentRequest;
+import edu.sjsu.expressnest.postservice.dto.response.CreateCommentResponse;
+import edu.sjsu.expressnest.postservice.dto.response.DeleteCommentResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetCommentsResponse;
+import edu.sjsu.expressnest.postservice.dto.response.UpdateCommentResponse;
 import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
 import edu.sjsu.expressnest.postservice.service.CommentService;
 import jakarta.validation.Valid;
@@ -20,41 +26,52 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 @Validated
 public class CommentController {
-	
+
 	@Autowired
 	CommentService commentService;
-	
-	@GetMapping("/getCommentByCommentId")
-	public ResponseEntity<CommentDTO> getCommentByCommentId(@NotNull @Positive @RequestParam long commentId) throws ResourceNotFoundException {
-		return null;
+
+	@GetMapping("/{commentId}")
+	public ResponseEntity<GetCommentsResponse> getCommentByCommentId(@NotNull @Positive @PathVariable long commentId)
+			throws ResourceNotFoundException {
+		GetCommentsResponse getCommentsResponse = commentService.getCommentByCommentId(commentId);
+		return new ResponseEntity<>(getCommentsResponse, HttpStatus.OK);
 	}
-	
-	@GetMapping("/getCommentsByPostId")
-	public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@NotNull @Positive @RequestParam long postId) throws ResourceNotFoundException {
-		return null;
+
+	@GetMapping("/post/{postId}")
+	public ResponseEntity<GetCommentsResponse> getCommentsByPostId(@NotNull @Positive @PathVariable long postId)
+			throws ResourceNotFoundException {
+		GetCommentsResponse getCommentsResponse = commentService.getCommentsByPostId(postId);
+		return new ResponseEntity<>(getCommentsResponse, HttpStatus.OK);
 	}
-	                
-	@GetMapping("/getCommentsByUserId")
-	public ResponseEntity<List<CommentDTO>> getCommentsByUserId(@NotNull @RequestParam long userId) {
-		return null;
+
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<GetCommentsResponse> getCommentsByUserId(@NotNull @PathVariable long userId) {
+		GetCommentsResponse getCommentsResponse = commentService.getCommentsByUserId(userId);
+		return new ResponseEntity<>(getCommentsResponse, HttpStatus.OK);
 	}
-	
-	@PostMapping("/createComment")
-	public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CommentDTO commentDTO) {
-		return null;
+
+	@PostMapping("/")
+	public ResponseEntity<CreateCommentResponse> createComment(
+			@Valid @RequestBody CreateCommentRequest createCommentRequest) throws ResourceNotFoundException {
+		CreateCommentResponse createCommentResponse = commentService.createComment(createCommentRequest);
+		return new ResponseEntity<>(createCommentResponse, HttpStatus.CREATED);
 	}
-	
-	@PostMapping("/updateComment")
-	public ResponseEntity<CommentDTO> updatePost(@RequestBody CommentDTO commentDTO) {
-		return null;
+
+	@PutMapping("/{commentId}")
+	public ResponseEntity<UpdateCommentResponse> updateComment(@PathVariable long commentId,
+			@RequestBody UpdateCommentRequest updateCommentRequest) throws ResourceNotFoundException {
+		UpdateCommentResponse updateCommentResponse = commentService.updateComment(commentId, updateCommentRequest);
+		return new ResponseEntity<>(updateCommentResponse, HttpStatus.OK);
 	}
-	
-	@PostMapping("/deleteComment")
-	public ResponseEntity<String> deleteComment(@NotNull @Positive @RequestBody long commentId) throws ResourceNotFoundException {
-		return null;
+
+	@DeleteMapping("/{CommentId}")
+	public ResponseEntity<DeleteCommentResponse> deleteComment(@NotNull @Positive @PathVariable long commentId)
+			throws ResourceNotFoundException {
+		DeleteCommentResponse deleteCommentResponse = commentService.deleteComment(commentId);
+		return new ResponseEntity<>(deleteCommentResponse, HttpStatus.OK);
 	}
 
 }

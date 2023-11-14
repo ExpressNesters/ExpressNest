@@ -7,13 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import edu.sjsu.expressnest.postservice.dto.AttachmentDTO;
-import edu.sjsu.expressnest.postservice.mapper.AttachmentMapper;
 import edu.sjsu.expressnest.postservice.model.Attachment;
 
 @Component
-public class AttachmentMapperImpl implements AttachmentMapper{
+public class AttachmentMapper {
 
-	@Override
 	public Attachment toAttachment(AttachmentDTO attachmentDTO) {		
 		if (attachmentDTO == null) {
 			return null;
@@ -26,7 +24,6 @@ public class AttachmentMapperImpl implements AttachmentMapper{
 				.build();
 	}
 
-	@Override
 	public AttachmentDTO toAttachmentDTO(Attachment attachment) {	
 		if (attachment == null) {
 			return null;
@@ -43,7 +40,6 @@ public class AttachmentMapperImpl implements AttachmentMapper{
 				.build();
 	}
 
-	@Override
 	public List<AttachmentDTO> toAttachmentDTOs(List<Attachment> attachments) {
 		if (attachments ==  null) {
 			return Collections.emptyList();

@@ -1,28 +1,98 @@
 package edu.sjsu.expressnest.postservice.service;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import edu.sjsu.expressnest.postservice.dto.PostDTO;
-import edu.sjsu.expressnest.postservice.mapper.CommentMapper;
+import edu.sjsu.expressnest.postservice.dto.request.CreateCommentRequest;
+import edu.sjsu.expressnest.postservice.dto.request.UpdateCommentRequest;
+import edu.sjsu.expressnest.postservice.dto.response.CreateCommentResponse;
+import edu.sjsu.expressnest.postservice.dto.response.DeleteCommentResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetCommentsResponse;
+import edu.sjsu.expressnest.postservice.dto.response.UpdateCommentResponse;
+import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
+import edu.sjsu.expressnest.postservice.mapper.impl.CommentMapper;
 import edu.sjsu.expressnest.postservice.model.Comment;
 import edu.sjsu.expressnest.postservice.model.Post;
+import edu.sjsu.expressnest.postservice.repository.CommentRepository;
+import edu.sjsu.expressnest.postservice.repository.PostRepository;
+import edu.sjsu.expressnest.postservice.util.PostServiceConstants;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CommentService {
-	
+
 	@Autowired
 	private CommentMapper commentMapper;
+
+	@Autowired
+	private CommentRepository commentRepository;
 	
-	public void mapComments(PostDTO postDTO, Post postEntity) {
-		List<Comment> comments = postDTO.getCommentDTOs().stream()
-				.map(commentMapper::toComment)
-				.peek(comment -> comment.setPost(postEntity))
-				.collect(Collectors.toList());
-		postEntity.setComments(comments);
+	@Autowired
+	private PostRepository postRepository;
+	
+	@Autowired
+	private MessageService messageService;
+
+	@Transactional
+	public CreateCommentResponse createComment(CreateCommentRequest createCommentRequest) throws ResourceNotFoundException {
+		long postId = createCommentRequest.getPostId();
+		Post post = postRepository.findById(postId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						messageService.getMessage(PostServiceConstants.POST_NOT_FOUND_ERROR_KEY, postId)));
+		int currentTotalComments = post.getTotalNoOfComments();
+		post.setTotalNoOfComments(currentTotalComments + 1);
+		Comment comment = commentMapper.toComment(createCommentRequest);
+		comment.setPost(post);
+		Comment createdComment = commentRepository.save(comment);
+		postRepository.save(post);
+		return commentMapper.toCreateCommentResponse(createdComment);
+	}
+	
+	@Transactional
+	public UpdateCommentResponse updateComment(long commentId, UpdateCommentRequest updateCommentRequest) throws ResourceNotFoundException {
+		Comment comment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						messageService.getMessage(PostServiceConstants.COMMENT_NOT_FOUND_ERROR_KEY, commentId)));
+		commentMapper.mapUpdateCommentRequestToComment(updateCommentRequest, comment);
+		Comment updatedComment = commentRepository.save(comment);
+		return commentMapper.toUpdateCommentResponse(updatedComment);
+	}
+	
+	@Transactional
+	public DeleteCommentResponse deleteComment(long commentId) throws ResourceNotFoundException {
+
+		Comment comment = commentRepository.findById(commentId)
+		.orElseThrow(() -> new ResourceNotFoundException(
+				messageService.getMessage(PostServiceConstants.COMMENT_NOT_FOUND_ERROR_KEY, commentId)));
+		
+		Post post = comment.getPost();
+		int currentTotalComments = post.getTotalNoOfComments();
+		commentRepository.delete(comment);
+		post.setTotalNoOfComments(Math.max(0, currentTotalComments - 1));
+		postRepository.save(post);
+		
+		return commentMapper.toDeleteCommentResponse(commentId);
+	}
+	
+	public GetCommentsResponse getCommentByCommentId(long commentId) throws ResourceNotFoundException {
+		return commentRepository.findById(commentId)
+				.map(Collections::singletonList)
+				.map(commentMapper::toGetCommentsResponse)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						messageService.getMessage(PostServiceConstants.COMMENT_NOT_FOUND_ERROR_KEY, commentId)));
+	}
+
+	public GetCommentsResponse getCommentsByPostId(long postId) {
+		List<Comment> comments = commentRepository.findByPost_PostId(postId);
+		return commentMapper.toGetCommentsResponse(comments);
+	}
+
+	public GetCommentsResponse getCommentsByUserId(long userId) {
+		List<Comment> comments = commentRepository.findByUserId(userId);
+		return commentMapper.toGetCommentsResponse(comments);
 	}
 
 }

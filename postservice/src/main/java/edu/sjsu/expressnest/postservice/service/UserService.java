@@ -20,8 +20,7 @@ public class UserService {
 	public User getUserByUserId(long userId) throws ResourceNotFoundException {
 		User retrievedUser = userRepository.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException(
-						messageService.getMessage(PostServiceConstants.USER_NOT_FOUND_ERROR_KEY, userId),
-						String.valueOf(userId)));
+						messageService.getMessage(PostServiceConstants.USER_NOT_FOUND_ERROR_KEY, userId)));
 		return retrievedUser;
 	}
 

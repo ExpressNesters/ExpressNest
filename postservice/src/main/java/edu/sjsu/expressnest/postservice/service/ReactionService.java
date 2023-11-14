@@ -1,28 +1,98 @@
 package edu.sjsu.expressnest.postservice.service;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import edu.sjsu.expressnest.postservice.dto.PostDTO;
-import edu.sjsu.expressnest.postservice.mapper.ReactionMapper;
+import edu.sjsu.expressnest.postservice.dto.request.CreateReactionRequest;
+import edu.sjsu.expressnest.postservice.dto.request.UpdateReactionRequest;
+import edu.sjsu.expressnest.postservice.dto.response.CreateReactionResponse;
+import edu.sjsu.expressnest.postservice.dto.response.DeleteReactionResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetReactionsResponse;
+import edu.sjsu.expressnest.postservice.dto.response.UpdateReactionResponse;
+import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
+import edu.sjsu.expressnest.postservice.mapper.impl.ReactionMapper;
 import edu.sjsu.expressnest.postservice.model.Post;
 import edu.sjsu.expressnest.postservice.model.Reaction;
+import edu.sjsu.expressnest.postservice.repository.PostRepository;
+import edu.sjsu.expressnest.postservice.repository.ReactionRepository;
+import edu.sjsu.expressnest.postservice.util.PostServiceConstants;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ReactionService {
-	
+
 	@Autowired
 	private ReactionMapper reactionMapper;
+
+	@Autowired
+	private ReactionRepository reactionRepository;
 	
-	public void mapReactions(PostDTO postDTO, Post postEntity) {
-		List<Reaction> reactions = postDTO.getReactionDTOs().stream()
-				.map(reactionMapper::toReaction)
-				.peek(reaction -> reaction.setPost(postEntity))
-				.collect(Collectors.toList());
-		postEntity.setReactions(reactions);
+	@Autowired
+	private PostRepository postRepository;
+	
+	@Autowired
+	private MessageService messageService;
+
+	@Transactional
+	public CreateReactionResponse createReaction(CreateReactionRequest createReactionRequest) throws ResourceNotFoundException {
+		long postId = createReactionRequest.getPostId();
+		Post post = postRepository.findById(postId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						messageService.getMessage(PostServiceConstants.POST_NOT_FOUND_ERROR_KEY, postId)));
+		int currentTotalReactions = post.getTotalNoOfReactions();
+		post.setTotalNoOfReactions(currentTotalReactions + 1);
+		Reaction reaction = reactionMapper.toReaction(createReactionRequest);
+		reaction.setPost(post);
+		Reaction createdReaction = reactionRepository.save(reaction);
+		postRepository.save(post);
+		return reactionMapper.toCreateReactionResponse(createdReaction);
+	}
+	
+	@Transactional
+	public UpdateReactionResponse updateReaction(long reactionId, UpdateReactionRequest updateReactionRequest) throws ResourceNotFoundException {
+		Reaction reaction = reactionRepository.findById(reactionId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						messageService.getMessage(PostServiceConstants.REACTION_NOT_FOUND_ERROR_KEY, reactionId)));
+		reactionMapper.mapUpdateReactionRequestToReaction(updateReactionRequest, reaction);
+		Reaction updatedReaction = reactionRepository.save(reaction);
+		return reactionMapper.toUpdateReactionResponse(updatedReaction);
+	}
+	
+	@Transactional
+	public DeleteReactionResponse deleteReaction(long reactionId) throws ResourceNotFoundException {
+
+		Reaction reaction = reactionRepository.findById(reactionId)
+		.orElseThrow(() -> new ResourceNotFoundException(
+				messageService.getMessage(PostServiceConstants.REACTION_NOT_FOUND_ERROR_KEY, reactionId)));
+		
+		Post post = reaction.getPost();
+		int currentTotalReactions = post.getTotalNoOfReactions();
+		reactionRepository.delete(reaction);
+		post.setTotalNoOfReactions(Math.max(0, currentTotalReactions - 1));
+		postRepository.save(post);
+		
+		return reactionMapper.toDeleteReactionResponse(reactionId);
+	}
+	
+	public GetReactionsResponse getReactionByReactionId(long reactionId) throws ResourceNotFoundException {
+		return reactionRepository.findById(reactionId)
+				.map(Collections::singletonList)
+				.map(reactionMapper::toGetReactionsResponse)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						messageService.getMessage(PostServiceConstants.REACTION_NOT_FOUND_ERROR_KEY, reactionId)));
+	}
+
+	public GetReactionsResponse getReactionsByPostId(long postId) {
+		List<Reaction> reactions = reactionRepository.findByPost_PostId(postId);
+		return reactionMapper.toGetReactionsResponse(reactions);
+	}
+
+	public GetReactionsResponse getReactionsByUserId(long userId) {
+		List<Reaction> reactions = reactionRepository.findByUserId(userId);
+		return reactionMapper.toGetReactionsResponse(reactions);
 	}
 
 }

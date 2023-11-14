@@ -1,6 +1,5 @@
 package edu.sjsu.expressnest.postservice.exception;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,11 +41,9 @@ public class PostServiceExceptionHandler extends ResponseEntityExceptionHandler 
 		@ExceptionHandler(ResourceNotFoundException.class)
 		public ResponseEntity<PostServiceError> handleResourceNotFoundException(ResourceNotFoundException exception) {
 			
-			Map<String, String> errors = Collections.singletonMap(exception.getResourceId(), exception.getMessage());
 			PostServiceError postServiceError = PostServiceError.builder()
 					.date(new Date())
-					.message(messageService.getMessage(PostServiceConstants.RESOURCE_NOT_FOUND_ERROR_KEY))
-					.errors(errors)
+					.message(exception.getMessage())
 					.build();
 	    	return new ResponseEntity<PostServiceError>(postServiceError, HttpStatus.NOT_FOUND);
 		}

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.sjsu.expressnest.postservice.dto.PostDTO;
-import edu.sjsu.expressnest.postservice.mapper.AttachmentMapper;
+import edu.sjsu.expressnest.postservice.mapper.impl.AttachmentMapper;
 import edu.sjsu.expressnest.postservice.model.Attachment;
 import edu.sjsu.expressnest.postservice.model.Post;
 

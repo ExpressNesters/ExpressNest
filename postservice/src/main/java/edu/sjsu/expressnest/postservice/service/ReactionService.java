@@ -1,15 +1,15 @@
 package edu.sjsu.expressnest.postservice.service;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import edu.sjsu.expressnest.postservice.dto.request.CreateReactionRequest;
 import edu.sjsu.expressnest.postservice.dto.request.UpdateReactionRequest;
 import edu.sjsu.expressnest.postservice.dto.response.CreateReactionResponse;
 import edu.sjsu.expressnest.postservice.dto.response.DeleteReactionResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetReactionResponse;
 import edu.sjsu.expressnest.postservice.dto.response.GetReactionsResponse;
 import edu.sjsu.expressnest.postservice.dto.response.UpdateReactionResponse;
 import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
@@ -77,22 +77,21 @@ public class ReactionService {
 		return reactionMapper.toDeleteReactionResponse(reactionId);
 	}
 	
-	public GetReactionsResponse getReactionByReactionId(long reactionId) throws ResourceNotFoundException {
+	public GetReactionResponse getReactionByReactionId(long reactionId) throws ResourceNotFoundException {
 		return reactionRepository.findById(reactionId)
-				.map(Collections::singletonList)
-				.map(reactionMapper::toGetReactionsResponse)
+				.map(reactionMapper::toGetReactionResponse)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						messageService.getMessage(PostServiceConstants.REACTION_NOT_FOUND_ERROR_KEY, reactionId)));
 	}
 
-	public GetReactionsResponse getReactionsByPostId(long postId) {
-		List<Reaction> reactions = reactionRepository.findByPost_PostId(postId);
-		return reactionMapper.toGetReactionsResponse(reactions);
+	public GetReactionsResponse getReactionsByPostId(long postId, Pageable pageable) {
+		Page<Reaction> reactionsPage = reactionRepository.findByPost_PostId(postId, pageable);
+		return reactionMapper.toGetReactionsResponse(reactionsPage);
 	}
 
-	public GetReactionsResponse getReactionsByUserId(long userId) {
-		List<Reaction> reactions = reactionRepository.findByUserId(userId);
-		return reactionMapper.toGetReactionsResponse(reactions);
+	public GetReactionsResponse getReactionsByUserId(long userId, Pageable pageable) {
+		Page<Reaction> reactionsPage = reactionRepository.findByUserId(userId, pageable);
+		return reactionMapper.toGetReactionsResponse(reactionsPage);
 	}
 
 }

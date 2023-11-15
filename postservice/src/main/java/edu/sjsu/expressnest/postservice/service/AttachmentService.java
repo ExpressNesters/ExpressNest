@@ -1,15 +1,15 @@
 package edu.sjsu.expressnest.postservice.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import edu.sjsu.expressnest.postservice.dto.PostDTO;
 import edu.sjsu.expressnest.postservice.mapper.impl.AttachmentMapper;
 import edu.sjsu.expressnest.postservice.model.Attachment;
-import edu.sjsu.expressnest.postservice.model.Post;
+import edu.sjsu.expressnest.postservice.repository.AttachmentRepository;
+import edu.sjsu.expressnest.postservice.util.AttachmentType;
 
 @Service
 public class AttachmentService {
@@ -17,12 +17,29 @@ public class AttachmentService {
 	@Autowired
 	private AttachmentMapper attachmentMapper;
 	
-	public void mapAttachments(PostDTO postDTO, Post postEntity) {
-		List<Attachment> attachments = postDTO.getAttachmentDTOs().stream()
-		        .map(attachmentMapper::toAttachment)
-		        .peek(attachment -> attachment.setPost(postEntity)) // Setting the post in the service layer
-		        .collect(Collectors.toList());
-		postEntity.setAttachments(attachments);
+	@Autowired
+	private AmazonS3Service amazonS3Service;
+	
+	@Autowired
+	private AttachmentRepository attachmentRepository;
+	
+	public Attachment createAttachment(MultipartFile multipartFile) throws IOException {
+		String filename = uploadFileToS3(multipartFile);
+		return Attachment.builder()
+				.attachmentType(AttachmentType.Media)
+				.attachmentRef(filename).build();
 	}
-
+	
+	public String uploadFileToS3(MultipartFile multipartFile) throws IOException {
+		String fileName = amazonS3Service.uploadFile(multipartFile);
+		return fileName;
+	}
+	
+	public String downloadFile(String bucketName, String filename) {
+		return null;
+	}
+	
+	public String deleteFile(String bucketName, String filename) {
+		return null;
+	}
 }

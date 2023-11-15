@@ -10,6 +10,10 @@ import lombok.Data;
 @Builder
 public class GetPostsResponse {
 	
-	List<PostDTO> postDTOs;
-
+	private List<PostDTO> postDTOs;
+	private int currentPage;
+    private long totalItems;
+    private int totalPages;
+    private int pageSize;
+	
 }

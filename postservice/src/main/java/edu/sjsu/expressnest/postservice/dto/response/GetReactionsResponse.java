@@ -11,5 +11,9 @@ import lombok.Data;
 public class GetReactionsResponse {
 	
 	private List<ReactionDTO> reactionDTOs;
+	private int currentPage;
+    private long totalItems;
+    private int totalPages;
+    private int pageSize;
 
 }

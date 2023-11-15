@@ -1,8 +1,5 @@
 package edu.sjsu.expressnest.postservice.dto.request;
 
-import java.util.List;
-
-import edu.sjsu.expressnest.postservice.dto.AttachmentDTO;
 import edu.sjsu.expressnest.postservice.util.PrivacyType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,7 +20,5 @@ public class CreatePostRequest {
 	
 	@NotNull(message = "{error.post.privacy.null}")
 	private PrivacyType privacy;
-	
-	private List<AttachmentDTO> attachmentDTOs;
 
 }

@@ -1,6 +1,8 @@
 package edu.sjsu.expressnest.postservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +19,7 @@ import edu.sjsu.expressnest.postservice.dto.request.CreateCommentRequest;
 import edu.sjsu.expressnest.postservice.dto.request.UpdateCommentRequest;
 import edu.sjsu.expressnest.postservice.dto.response.CreateCommentResponse;
 import edu.sjsu.expressnest.postservice.dto.response.DeleteCommentResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetCommentResponse;
 import edu.sjsu.expressnest.postservice.dto.response.GetCommentsResponse;
 import edu.sjsu.expressnest.postservice.dto.response.UpdateCommentResponse;
 import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
@@ -34,22 +37,24 @@ public class CommentController {
 	CommentService commentService;
 
 	@GetMapping("/{commentId}")
-	public ResponseEntity<GetCommentsResponse> getCommentByCommentId(@NotNull @Positive @PathVariable long commentId)
+	public ResponseEntity<GetCommentResponse> getCommentByCommentId(@NotNull @Positive @PathVariable long commentId)
 			throws ResourceNotFoundException {
-		GetCommentsResponse getCommentsResponse = commentService.getCommentByCommentId(commentId);
-		return new ResponseEntity<>(getCommentsResponse, HttpStatus.OK);
+		GetCommentResponse getCommentResponse = commentService.getCommentByCommentId(commentId);
+		return new ResponseEntity<>(getCommentResponse, HttpStatus.OK);
 	}
 
 	@GetMapping("/post/{postId}")
-	public ResponseEntity<GetCommentsResponse> getCommentsByPostId(@NotNull @Positive @PathVariable long postId)
+	public ResponseEntity<GetCommentsResponse> getCommentsByPostId(@NotNull @Positive @PathVariable long postId,
+			@PageableDefault(page = 0, size = 10, sort = "createdAt,desc") Pageable pageable)
 			throws ResourceNotFoundException {
-		GetCommentsResponse getCommentsResponse = commentService.getCommentsByPostId(postId);
+		GetCommentsResponse getCommentsResponse = commentService.getCommentsByPostId(postId, pageable);
 		return new ResponseEntity<>(getCommentsResponse, HttpStatus.OK);
 	}
 
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<GetCommentsResponse> getCommentsByUserId(@NotNull @PathVariable long userId) {
-		GetCommentsResponse getCommentsResponse = commentService.getCommentsByUserId(userId);
+	public ResponseEntity<GetCommentsResponse> getCommentsByUserId(@NotNull @PathVariable long userId,
+			@PageableDefault(page = 0, size = 10, sort = "createdAt,desc") Pageable pageable) {
+		GetCommentsResponse getCommentsResponse = commentService.getCommentsByUserId(userId, pageable);
 		return new ResponseEntity<>(getCommentsResponse, HttpStatus.OK);
 	}
 

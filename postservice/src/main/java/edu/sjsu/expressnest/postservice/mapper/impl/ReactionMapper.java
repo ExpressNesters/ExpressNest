@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import edu.sjsu.expressnest.postservice.dto.ReactionDTO;
@@ -11,6 +12,7 @@ import edu.sjsu.expressnest.postservice.dto.request.CreateReactionRequest;
 import edu.sjsu.expressnest.postservice.dto.request.UpdateReactionRequest;
 import edu.sjsu.expressnest.postservice.dto.response.CreateReactionResponse;
 import edu.sjsu.expressnest.postservice.dto.response.DeleteReactionResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetReactionResponse;
 import edu.sjsu.expressnest.postservice.dto.response.GetReactionsResponse;
 import edu.sjsu.expressnest.postservice.dto.response.UpdateReactionResponse;
 import edu.sjsu.expressnest.postservice.model.Reaction;
@@ -49,9 +51,19 @@ public class ReactionMapper {
 				.build();
 	}
 	
-	public GetReactionsResponse toGetReactionsResponse(List<Reaction> reactions) {
+	public GetReactionsResponse toGetReactionsResponse(Page<Reaction> reactionsPage) {
 		return GetReactionsResponse.builder()
-				.reactionDTOs(toReactionDTOs(reactions))
+				.reactionDTOs(toReactionDTOs(reactionsPage))
+				.currentPage(reactionsPage.getNumber())
+				.pageSize(reactionsPage.getSize())
+				.totalItems(reactionsPage.getTotalElements())
+                .totalPages(reactionsPage.getTotalPages())
+				.build();
+	}
+	
+	public GetReactionResponse toGetReactionResponse(Reaction reaction) {
+		return GetReactionResponse.builder()
+				.reactionDTO(toReactionDTO(reaction))
 				.build();
 	}
 	
@@ -62,8 +74,8 @@ public class ReactionMapper {
 				.build();
 	}
 	
-	private List<ReactionDTO> toReactionDTOs(List<Reaction> reactions) {
-		return reactions.stream()
+	private List<ReactionDTO> toReactionDTOs(Page<Reaction> reactionsPage) {
+		return reactionsPage.getContent().stream()
 				.map(this::toReactionDTO)
 				.collect(Collectors.toList());
 	}

@@ -1,15 +1,15 @@
 package edu.sjsu.expressnest.postservice.service;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import edu.sjsu.expressnest.postservice.dto.request.CreateCommentRequest;
 import edu.sjsu.expressnest.postservice.dto.request.UpdateCommentRequest;
 import edu.sjsu.expressnest.postservice.dto.response.CreateCommentResponse;
 import edu.sjsu.expressnest.postservice.dto.response.DeleteCommentResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetCommentResponse;
 import edu.sjsu.expressnest.postservice.dto.response.GetCommentsResponse;
 import edu.sjsu.expressnest.postservice.dto.response.UpdateCommentResponse;
 import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
@@ -77,22 +77,21 @@ public class CommentService {
 		return commentMapper.toDeleteCommentResponse(commentId);
 	}
 	
-	public GetCommentsResponse getCommentByCommentId(long commentId) throws ResourceNotFoundException {
+	public GetCommentResponse getCommentByCommentId(long commentId) throws ResourceNotFoundException {
 		return commentRepository.findById(commentId)
-				.map(Collections::singletonList)
-				.map(commentMapper::toGetCommentsResponse)
+				.map(commentMapper::toGetCommentResponse)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						messageService.getMessage(PostServiceConstants.COMMENT_NOT_FOUND_ERROR_KEY, commentId)));
 	}
 
-	public GetCommentsResponse getCommentsByPostId(long postId) {
-		List<Comment> comments = commentRepository.findByPost_PostId(postId);
-		return commentMapper.toGetCommentsResponse(comments);
+	public GetCommentsResponse getCommentsByPostId(long postId, Pageable pageable) {
+		Page<Comment> commentsPage = commentRepository.findByPost_PostId(postId, pageable);
+		return commentMapper.toGetCommentsResponse(commentsPage);
 	}
 
-	public GetCommentsResponse getCommentsByUserId(long userId) {
-		List<Comment> comments = commentRepository.findByUserId(userId);
-		return commentMapper.toGetCommentsResponse(comments);
+	public GetCommentsResponse getCommentsByUserId(long userId, Pageable pageable) {
+		Page<Comment> commentsPage = commentRepository.findByUserId(userId, pageable);
+		return commentMapper.toGetCommentsResponse(commentsPage);
 	}
 
 }

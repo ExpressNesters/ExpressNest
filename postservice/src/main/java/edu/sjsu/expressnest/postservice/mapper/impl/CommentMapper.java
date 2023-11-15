@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import edu.sjsu.expressnest.postservice.dto.CommentDTO;
@@ -11,6 +12,7 @@ import edu.sjsu.expressnest.postservice.dto.request.CreateCommentRequest;
 import edu.sjsu.expressnest.postservice.dto.request.UpdateCommentRequest;
 import edu.sjsu.expressnest.postservice.dto.response.CreateCommentResponse;
 import edu.sjsu.expressnest.postservice.dto.response.DeleteCommentResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetCommentResponse;
 import edu.sjsu.expressnest.postservice.dto.response.GetCommentsResponse;
 import edu.sjsu.expressnest.postservice.dto.response.UpdateCommentResponse;
 import edu.sjsu.expressnest.postservice.model.Comment;
@@ -49,9 +51,19 @@ public class CommentMapper {
 				.build();
 	}
 	
-	public GetCommentsResponse toGetCommentsResponse(List<Comment> comments) {
+	public GetCommentsResponse toGetCommentsResponse(Page<Comment> commentsPage) {
 		return GetCommentsResponse.builder()
-				.commentDTOs(toCommentDTOs(comments))
+				.commentDTOs(toCommentDTOs(commentsPage))
+				.currentPage(commentsPage.getNumber())
+				.pageSize(commentsPage.getSize())
+				.totalItems(commentsPage.getTotalElements())
+                .totalPages(commentsPage.getTotalPages())
+				.build();
+	}
+	
+	public GetCommentResponse toGetCommentResponse(Comment comment) {
+		return GetCommentResponse.builder()
+				.commentDTO(toCommentDTO(comment))
 				.build();
 	}
 	
@@ -62,8 +74,8 @@ public class CommentMapper {
 				.build();
 	}
 	
-	private List<CommentDTO> toCommentDTOs(List<Comment> comments) {
-		return comments.stream()
+	private List<CommentDTO> toCommentDTOs(Page<Comment> commentsPage) {
+		return commentsPage.getContent().stream()
 				.map(this::toCommentDTO)
 				.collect(Collectors.toList());
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import edu.sjsu.expressnest.postservice.dto.PostDTO;
@@ -11,6 +12,7 @@ import edu.sjsu.expressnest.postservice.dto.request.CreatePostRequest;
 import edu.sjsu.expressnest.postservice.dto.request.UpdatePostRequest;
 import edu.sjsu.expressnest.postservice.dto.response.CreatePostResponse;
 import edu.sjsu.expressnest.postservice.dto.response.DeletePostResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetPostResponse;
 import edu.sjsu.expressnest.postservice.dto.response.GetPostsResponse;
 import edu.sjsu.expressnest.postservice.dto.response.UpdatePostResponse;
 import edu.sjsu.expressnest.postservice.model.Post;
@@ -34,7 +36,6 @@ public class PostMapper {
 				.userId(createPostRequest.getUserId())
 				.postText(createPostRequest.getPostText())
 				.privacy(createPostRequest.getPrivacy())
-				.attachments(null)
 				.build();
 	}
 	
@@ -42,8 +43,10 @@ public class PostMapper {
 		if (post == null) {
 			return null;
 		}
+		
+		PostDTO createdPostDTO = toPostDTO(post);
 		return CreatePostResponse.builder()
-				.createdPostDTO(toPostDTO(post))
+				.createdPostDTO(createdPostDTO)
 				.build();
 	}
 	
@@ -64,11 +67,22 @@ public class PostMapper {
 				.build();
 	}
 	
-	public GetPostsResponse toGetPostResponse(List<Post> posts) {
+	public GetPostsResponse toGetPostsResponse(Page<Post> postsPage) {
 		return GetPostsResponse.builder()
-				.postDTOs(toPostPostDTOs(posts))
+				.postDTOs(toPostDTOs(postsPage))
+				.currentPage(postsPage.getNumber())
+				.pageSize(postsPage.getSize())
+				.totalItems(postsPage.getTotalElements())
+                .totalPages(postsPage.getTotalPages())
 				.build();
 	}
+	
+	public GetPostResponse toGetPostResponse(Post post) {
+		return GetPostResponse.builder()
+				.postDTO(toPostDTO(post))
+				.build();
+	}
+
 	
 	public DeletePostResponse toDeletePostResponse(long postId) {
 		return DeletePostResponse.builder()
@@ -77,8 +91,8 @@ public class PostMapper {
 				.build();
 	}
 	
-	private List<PostDTO> toPostPostDTOs(List<Post> posts) {
-		return posts.stream()
+	private List<PostDTO> toPostDTOs(Page<Post> postsPage) {
+		return postsPage.getContent().stream()
 				.map(this::toPostDTO)
 				.collect(Collectors.toList());
 	}

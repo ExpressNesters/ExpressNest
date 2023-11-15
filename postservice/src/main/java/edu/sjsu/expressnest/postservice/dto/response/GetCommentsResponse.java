@@ -11,5 +11,9 @@ import lombok.Data;
 public class GetCommentsResponse {
 	
 	private List<CommentDTO> commentDTOs;
+	private int currentPage;
+    private long totalItems;
+    private int totalPages;
+    private int pageSize;
 
 }

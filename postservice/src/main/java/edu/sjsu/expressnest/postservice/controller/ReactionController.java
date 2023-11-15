@@ -1,6 +1,8 @@
 package edu.sjsu.expressnest.postservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +19,7 @@ import edu.sjsu.expressnest.postservice.dto.request.CreateReactionRequest;
 import edu.sjsu.expressnest.postservice.dto.request.UpdateReactionRequest;
 import edu.sjsu.expressnest.postservice.dto.response.CreateReactionResponse;
 import edu.sjsu.expressnest.postservice.dto.response.DeleteReactionResponse;
+import edu.sjsu.expressnest.postservice.dto.response.GetReactionResponse;
 import edu.sjsu.expressnest.postservice.dto.response.GetReactionsResponse;
 import edu.sjsu.expressnest.postservice.dto.response.UpdateReactionResponse;
 import edu.sjsu.expressnest.postservice.exception.ResourceNotFoundException;
@@ -34,22 +37,24 @@ public class ReactionController {
 	ReactionService reactionService;
 
 	@GetMapping("/{reactionId}")
-	public ResponseEntity<GetReactionsResponse> getReactionByReactionId(@NotNull @Positive @PathVariable long reactionId)
+	public ResponseEntity<GetReactionResponse> getReactionByReactionId(@NotNull @Positive @PathVariable long reactionId)
 			throws ResourceNotFoundException {
-		GetReactionsResponse getReactionsResponse = reactionService.getReactionByReactionId(reactionId);
-		return new ResponseEntity<>(getReactionsResponse, HttpStatus.OK);
+		GetReactionResponse getReactionResponse = reactionService.getReactionByReactionId(reactionId);
+		return new ResponseEntity<>(getReactionResponse, HttpStatus.OK);
 	}
 
 	@GetMapping("/post/{postId}")
-	public ResponseEntity<GetReactionsResponse> getReactionsByPostId(@NotNull @Positive @PathVariable long postId)
+	public ResponseEntity<GetReactionsResponse> getReactionsByPostId(@NotNull @Positive @PathVariable long postId,
+			@PageableDefault(page = 0, size = 10, sort = "createdAt,desc") Pageable pageable)
 			throws ResourceNotFoundException {
-		GetReactionsResponse getReactionsResponse = reactionService.getReactionsByPostId(postId);
+		GetReactionsResponse getReactionsResponse = reactionService.getReactionsByPostId(postId, pageable);
 		return new ResponseEntity<>(getReactionsResponse, HttpStatus.OK);
 	}
 
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<GetReactionsResponse> getReactionsByUserId(@NotNull @PathVariable long userId) {
-		GetReactionsResponse getReactionsResponse = reactionService.getReactionsByUserId(userId);
+	public ResponseEntity<GetReactionsResponse> getReactionsByUserId(@NotNull @PathVariable long userId,
+			@PageableDefault(page = 0, size = 10, sort = "createdAt,desc") Pageable pageable) {
+		GetReactionsResponse getReactionsResponse = reactionService.getReactionsByUserId(userId, pageable);
 		return new ResponseEntity<>(getReactionsResponse, HttpStatus.OK);
 	}
 

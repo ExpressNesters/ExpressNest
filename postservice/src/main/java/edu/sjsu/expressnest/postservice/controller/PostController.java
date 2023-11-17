@@ -69,24 +69,16 @@ public class PostController {
 		return new ResponseEntity<>(createdPostDTO, HttpStatus.CREATED);
 	}
 	
-	@PostMapping("/")
-	public ResponseEntity<CreatePostResponse> createPostWithAttachment(@Valid @RequestPart("post") CreatePostRequest createPostRequest,
-			@RequestPart("file") MultipartFile file) throws IOException {
-		CreatePostResponse createdPostDTO = postService.createPostWithAttachment(createPostRequest, file);
-		return new ResponseEntity<>(createdPostDTO, HttpStatus.CREATED);
-	}
-	
-	@PostMapping(path = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<String> uploadFile(@Valid @RequestPart("post") CreatePostRequest createPostRequest, 
-			@RequestPart MultipartFile file) throws IOException {
+	@PostMapping(path = "/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+	public ResponseEntity<String> uploadFile(@Valid @RequestPart CreatePostRequest createPostRequest, 
+			@RequestPart  MultipartFile file) throws IOException {
 		postService.createPostWithAttachment(createPostRequest, file);
 		return new ResponseEntity<>("uploaded", HttpStatus.OK);
 	}
 	
 	@PutMapping("/{postId}")
 	public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable long postId, @RequestBody UpdatePostRequest updatePostRequest) throws ResourceNotFoundException {
-		updatePostRequest.setPostId(postId);
-		UpdatePostResponse updatedPostDTO = postService.updatePost(updatePostRequest);
+		UpdatePostResponse updatedPostDTO = postService.updatePost(postId, updatePostRequest);
 		return new ResponseEntity<>(updatedPostDTO, HttpStatus.OK);
 	}
 	

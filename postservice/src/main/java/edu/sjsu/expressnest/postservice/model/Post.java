@@ -13,8 +13,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "en_posts")
 public class Post {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq_gen")
     @SequenceGenerator(name = "post_seq_gen", sequenceName = "en_post_id_seq", allocationSize = 1)
@@ -50,13 +54,16 @@ public class Post {
 	@Column(name="total_reactions")
 	private int totalNoOfReactions;
 	
-	@Column(name="created_at")
+	@Column(name="created_at", nullable = false, updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt;
 	
 	@Column(name="updated_at")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt;
 	
 	@Column(name="deleted_at")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date deletedAt;
 	
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
@@ -67,5 +74,15 @@ public class Post {
 	
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
 	private List<Reaction> reactions;
+	
+	@PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
 
 }

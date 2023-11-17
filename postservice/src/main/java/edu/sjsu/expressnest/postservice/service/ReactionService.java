@@ -1,5 +1,7 @@
 package edu.sjsu.expressnest.postservice.service;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,14 +65,15 @@ public class ReactionService {
 	
 	@Transactional
 	public DeleteReactionResponse deleteReaction(long reactionId) throws ResourceNotFoundException {
-
+		// soft delete
 		Reaction reaction = reactionRepository.findById(reactionId)
 		.orElseThrow(() -> new ResourceNotFoundException(
 				messageService.getMessage(PostServiceConstants.REACTION_NOT_FOUND_ERROR_KEY, reactionId)));
 		
 		Post post = reaction.getPost();
 		int currentTotalReactions = post.getTotalNoOfReactions();
-		reactionRepository.delete(reaction);
+		reaction.setDeletedAt(new Date());
+		reactionRepository.save(reaction);
 		post.setTotalNoOfReactions(Math.max(0, currentTotalReactions - 1));
 		postRepository.save(post);
 		

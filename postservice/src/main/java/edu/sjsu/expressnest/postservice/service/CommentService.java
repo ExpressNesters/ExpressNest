@@ -1,5 +1,7 @@
 package edu.sjsu.expressnest.postservice.service;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,14 +65,15 @@ public class CommentService {
 	
 	@Transactional
 	public DeleteCommentResponse deleteComment(long commentId) throws ResourceNotFoundException {
-
+		// soft delete
 		Comment comment = commentRepository.findById(commentId)
 		.orElseThrow(() -> new ResourceNotFoundException(
 				messageService.getMessage(PostServiceConstants.COMMENT_NOT_FOUND_ERROR_KEY, commentId)));
 		
 		Post post = comment.getPost();
 		int currentTotalComments = post.getTotalNoOfComments();
-		commentRepository.delete(comment);
+		comment.setDeletedAt(new Date());
+		commentRepository.save(comment);
 		post.setTotalNoOfComments(Math.max(0, currentTotalComments - 1));
 		postRepository.save(post);
 		

@@ -11,5 +11,6 @@ public class PostServiceConstants {
 	public static final String REACTION_DELETED_INFO_KEY="info.reaction.reactionId.deleted";
 	public static final String COMMENT_NOT_FOUND_ERROR_KEY="error.comment.commentId.notFound";
 	public static final String REACTION_NOT_FOUND_ERROR_KEY="error.reaction.reactionId.notFound";
+	public static final String ATTACHMENT_NOT_FOUND_ERROR_KEY="error.attachment.attachmentId.notFound";
 
 }

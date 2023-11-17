@@ -19,8 +19,6 @@ public class AttachmentMapper {
 		return Attachment.builder()
 				.attachmentId(attachmentDTO.getAttachmentId())
 				.attachmentType(attachmentDTO.getAttachmentType())
-				.attachmentRef(attachmentDTO.getAttachmentRef())
-				.userId(attachmentDTO.getUserId())
 				.build();
 	}
 
@@ -31,9 +29,6 @@ public class AttachmentMapper {
 		return AttachmentDTO.builder()
 				.attachmentId(attachment.getAttachmentId())
 				.attachmentType(attachment.getAttachmentType())
-				.attachmentRef(attachment.getAttachmentRef())
-				.userId(attachment.getUserId())
-				.postId(attachment.getPost().getPostId())
 				.createdAt(attachment.getCreatedAt())
 				.updatedAt(attachment.getUpdatedAt())
 				.deletedAt(attachment.getDeletedAt())

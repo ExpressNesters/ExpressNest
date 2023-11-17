@@ -2,6 +2,7 @@ package edu.sjsu.expressnest.postservice.service;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ public class PostService {
 	private AttachmentService attachmentService;
 
 	public GetPostResponse getPostByPostId(long postId) throws ResourceNotFoundException {
+		System.out.println("Post ID : " + postId);
 		return postRepository.findById(postId)
 				.map(postMapper::toGetPostResponse)
 				.orElseThrow(() -> new ResourceNotFoundException(
@@ -71,23 +73,34 @@ public class PostService {
 		post.setTotalNoOfComments(0);
 		post.setTotalNoOfReactions(0);
 		Attachment createdAttachment = attachmentService.createAttachment(file);
+		createdAttachment.setPost(post);
 		post.setAttachments(Collections.singletonList(createdAttachment));
 		Post createdPost = postRepository.save(post);
 		return postMapper.toCreatePostResponse(createdPost);
 	}
 
 	public DeletePostResponse deletePost(long postId) throws ResourceNotFoundException {
+		// soft delete - need to check about setting comments and reactions as deleted.
 		return postRepository.findById(postId)
 				.map(post -> {
-					postRepository.delete(post);
+					post.setDeletedAt(new Date());
+					post.getAttachments().forEach(attachment -> {
+	                    attachmentService.deleteAttachmentByAttachmentId(attachment.getAttachmentId());
+	                });
+					post.getComments().forEach(comment -> {
+						comment.setDeletedAt(new Date());
+					});
+					post.getReactions().forEach(reaction -> {
+						reaction.setDeletedAt(new Date());
+					});
+					postRepository.save(post);
 					return postMapper.toDeletePostResponse(postId);
 					})
 				.orElseThrow(() -> new ResourceNotFoundException(
 						messageService.getMessage(PostServiceConstants.POST_NOT_FOUND_ERROR_KEY, postId)));
 	}
 	
-	public UpdatePostResponse updatePost(UpdatePostRequest updatePostRequest) throws ResourceNotFoundException {
-		long postId = updatePostRequest.getPostId();
+	public UpdatePostResponse updatePost(long postId, UpdatePostRequest updatePostRequest) throws ResourceNotFoundException {
 		Post post = postRepository.findById(postId)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						messageService.getMessage(PostServiceConstants.POST_NOT_FOUND_ERROR_KEY, postId)));

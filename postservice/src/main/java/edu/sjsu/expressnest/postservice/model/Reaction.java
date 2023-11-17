@@ -12,8 +12,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "en_reactions")
 public class Reaction {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reaction_seq_gen")
     @SequenceGenerator(name = "reaction_seq_gen", sequenceName = "en_reaction_id_seq", allocationSize = 1)
@@ -36,13 +40,16 @@ public class Reaction {
 	@Column(name = "reaction_type")
 	private ReactionType reactionType;
 	
-	@Column(name = "created_at")
+	@Column(name="created_at", nullable = false, updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt;
 	
-	@Column(name = "updated_at")
+	@Column(name="updated_at")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt;
 	
-	@Column(name = "deleted_at")
+	@Column(name="deleted_at")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date deletedAt;
 	
 	@ManyToOne
@@ -51,5 +58,15 @@ public class Reaction {
 	
 	@Column(name="user_id")
 	private long userId;
+	
+	@PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
 
 }

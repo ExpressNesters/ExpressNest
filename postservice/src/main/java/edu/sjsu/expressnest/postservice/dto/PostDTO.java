@@ -1,5 +1,6 @@
 package edu.sjsu.expressnest.postservice.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -9,8 +10,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PostDTO {
+public class PostDTO implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1147996233300667327L;
+	
 	private long userId;	
 	private long postId;
 	private String postText;

@@ -50,6 +50,7 @@ public class PostServiceExceptionHandler extends ResponseEntityExceptionHandler 
 		
 		@ExceptionHandler(Exception.class)
 		public ResponseEntity<PostServiceError> handleException(Exception exception) {
+			exception.printStackTrace();
 			PostServiceError postServiceError = PostServiceError.builder()
 					.date(new Date())
 					.message(exception.getMessage())

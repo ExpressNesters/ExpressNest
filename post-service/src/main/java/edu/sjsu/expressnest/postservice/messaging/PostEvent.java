@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PostMessage {
+public class PostEvent {
 	
 	private long postId;
-	private long userId;
+	private long actionedBy;
 
 }

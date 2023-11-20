@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+  cassandra:
+    image: cassandra:latest
+    ports:
+      - "9042:9042"
+

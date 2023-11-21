@@ -1,6 +1,7 @@
-package edu.sjsu.expressnest.postservice.messaging;
+package edu.sjsu.expressnest.feeds.messaging;
 
-import edu.sjsu.expressnest.postservice.util.PostEventType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,12 +9,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class PostEvent {
-	
-	private long postId;
-	private long actionedBy;
-	private PostEventType postEventType;
 
+	private long postId;
+	
+	private long actionedBy;
+	
+	@JsonProperty("postEventType")
+	private String type;
 }

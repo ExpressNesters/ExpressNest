@@ -1,9 +1,0 @@
-CREATE KEYSPACE userprofile WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
-
-CREATE TABLE userprofile.users (
-    id UUID PRIMARY KEY,
-    name TEXT,
-    email TEXT,
-    // Add other fields as required
-);
-

@@ -1,10 +1,23 @@
-FROM golang:1.17-alpine
-WORKDIR /app
-COPY go.mod ./
-COPY go.sum ./
-RUN go mod download
-COPY . .
-RUN go build -o user-profile-service
-EXPOSE 8080
-CMD ["/user-profile-service"]
+# Dockerfile for Go application
+FROM golang:1.17 as builder
 
+WORKDIR /app
+
+# Copy go mod and sum files
+COPY go.mod go.sum ./
+# Download dependencies
+RUN go mod download
+
+# Copy the source code
+COPY . .
+
+# Build the Go app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o userprofileservice .
+
+# Use a smaller image to run the application
+FROM alpine:latest  
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /app/userprofileservice .
+EXPOSE 8088
+CMD ["./userprofileservice"]

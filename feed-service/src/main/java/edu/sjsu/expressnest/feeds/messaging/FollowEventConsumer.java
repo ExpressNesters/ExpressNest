@@ -1,5 +1,8 @@
 package edu.sjsu.expressnest.feeds.messaging;
 
+import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +16,10 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class FollowEventConsumer {
 	
+	@Autowired
 	private UserFollowersRepository userFollowersRepository;
 	
-	@KafkaListener(topics = "follow-events")
+	@KafkaListener(topics = "follow-events", containerFactory = "followEventKafkaListenerContainerFactory")
 	public UserFollowers processPostEvents(FollowEvent followEvent) throws ResourceNotFoundException {
 	    FollowEventType eventType = FollowEventType.valueOf(followEvent.getType());
 	    switch (eventType) {
@@ -29,27 +33,38 @@ public class FollowEventConsumer {
 	    }
 	}
 
-	private UserFollowers handleFollowEvent(FollowEvent followEvent) throws ResourceNotFoundException {
+	private UserFollowers handleFollowEvent(FollowEvent followEvent) {
 	    log.info("FollowEvent: User={} followed User={}", followEvent.getFollowerId(), followEvent.getFolloweeId());
 	    return userFollowersRepository.findById(followEvent.getFolloweeId())
 	        .map(userFollowers -> updateUserFollowersWithNewFollower(userFollowers, followEvent.getFollowerId()))
-	        .orElseThrow(() -> new ResourceNotFoundException("UserID does not exist for FolloweeId: " + followEvent.getFolloweeId()));
+	        .orElseGet(() -> createUserFollowers(followEvent.getFolloweeId(), followEvent.getFollowerId()));
 	}
 
+	private UserFollowers updateUserFollowersWithNewFollower(UserFollowers userFollowers, long followerId) {
+		if (!userFollowers.getFollowerIds().contains(followerId)) {
+	        userFollowers.getFollowerIds().add(followerId);
+	    }
+		return userFollowersRepository.save(userFollowers);
+	}
+	
 	private UserFollowers handleUnfollowEvent(FollowEvent followEvent) throws ResourceNotFoundException {
 	    log.info("UnfollowEvent: User={} unfollowed User={}", followEvent.getFollowerId(), followEvent.getFolloweeId());
 	    return userFollowersRepository.findById(followEvent.getFolloweeId())
 	        .map(userFollowers -> updateUserFollowersToRemoveFollower(userFollowers, followEvent.getFollowerId()))
 	        .orElseThrow(() -> new ResourceNotFoundException("UserID does not exist for FolloweeId: " + followEvent.getFolloweeId()));
 	}
-
-	private UserFollowers updateUserFollowersWithNewFollower(UserFollowers userFollowers, long followerId) {
-	    userFollowers.getFollowerIds().add(followerId);
-	    return userFollowersRepository.save(userFollowers);
+	
+	private UserFollowers createUserFollowers(long followeeId, long followerId) {
+	    UserFollowers newUserFollowers = new UserFollowers();
+	    newUserFollowers.setUserId(followeeId);
+	    newUserFollowers.setFollowerIds(Arrays.asList(followerId));
+	    return userFollowersRepository.save(newUserFollowers);
 	}
 
 	private UserFollowers updateUserFollowersToRemoveFollower(UserFollowers userFollowers, long followerId) {
-	    userFollowers.getFollowerIds().remove(followerId);
+		if (userFollowers.getFollowerIds().contains(followerId)) {
+			 userFollowers.getFollowerIds().remove(followerId);
+	    }
 	    return userFollowersRepository.save(userFollowers);
 	}
 }

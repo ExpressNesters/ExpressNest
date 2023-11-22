@@ -1,8 +1,12 @@
 package edu.sjsu.expressnest.feeds.messaging;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import edu.sjsu.expressnest.feeds.model.UserFeeds;
 import edu.sjsu.expressnest.feeds.model.UserFollowers;
 import edu.sjsu.expressnest.feeds.repository.UserFeedsRepository;
 import edu.sjsu.expressnest.feeds.repository.UserFollowersRepository;
@@ -19,6 +23,7 @@ public class PostEventConsumer {
 	@Autowired
 	private UserFeedsRepository userFeedsRepository;
 	
+	@KafkaListener(topics = "post-events", containerFactory = "postEventKafkaListenerContainerFactory")
 	public void processPostEvents(PostEvent postEvent) {
 	    PostEventType eventType = PostEventType.valueOf(postEvent.getType());
 	    switch (eventType) {
@@ -46,11 +51,17 @@ public class PostEventConsumer {
 	}
 
 	private void updateUserFeedWithNewPost(long followerId, long postId) {
-	    userFeedsRepository.findById(followerId)
-	        .ifPresent(userFeeds -> {
-	        	userFeeds.getPostIds().add(postId);
-	    		userFeedsRepository.save(userFeeds);
-	        });
+		 UserFeeds userFeeds = userFeedsRepository.findById(followerId)
+				 .orElseGet(() -> newUserFeeds(followerId));
+		 userFeeds.getPostIds().add(postId);
+		 userFeedsRepository.save(userFeeds);
+	}
+	
+	private UserFeeds newUserFeeds(long followerId) {
+	    UserFeeds newUserFeeds = new UserFeeds();
+	    newUserFeeds.setUserId(followerId);
+	    newUserFeeds.setPostIds(new ArrayList<Long>());
+	    return newUserFeeds;
 	}
 
 	private void handleUpdateEvent(PostEvent postEvent) {

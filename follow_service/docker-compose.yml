@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "8089:8089"
+    environment:
+      - NEO4J_URI=neo4j://db:7687
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: neo4j:latest
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    environment:
+      - NEO4J_AUTH=none
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  neo4j_data:

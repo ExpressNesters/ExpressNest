@@ -19,17 +19,17 @@ import edu.sjsu.expressnest.feeds.messaging.PostEvent;
 @Configuration
 public class KafkaConsumerConfig {
 	
-	@Value("$(expressnest.feedservice.kafka.server)")
+	@Value("${expressnest.feedservice.kafka.server}")
 	private String bootstrapServer;
 		
-	@Value("$(expressnest.feedservice.kafka.group-id)")
+	@Value("${expressnest.feedservice.kafka.group-id}")
 	private String groupId;
 	
 	@Bean
     public ConsumerFactory<String, PostEvent> postEventConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "feeds-group");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(PostEvent.class));
@@ -38,8 +38,8 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, FollowEvent> followEventConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "feeds-group");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(FollowEvent.class));

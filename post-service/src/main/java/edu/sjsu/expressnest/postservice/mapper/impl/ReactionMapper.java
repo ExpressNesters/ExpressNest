@@ -82,6 +82,13 @@ public class ReactionMapper {
 	
 	private ReactionDTO toReactionDTO(Reaction reaction) {
 		return ReactionDTO.builder()
+				.reactionId(reaction.getReactionId())
+				.reactionType(reaction.getReactionType())
+				.userId(reaction.getUserId())
+				.postId(reaction.getPost().getPostId())
+				.createdAt(reaction.getCreatedAt())
+				.updatedAt(reaction.getUpdatedAt())
+				.deletedAt(reaction.getDeletedAt())
 				.build();
 	}
 

@@ -25,7 +25,7 @@ const (
 // OAuth2 configuration
 var oauth2Config = &oauth2.Config{
 	ClientID:     "Expressnest",
-	ClientSecret: "F4CcBZRR0Ksdy4LOnsrBnItRNfLrR01e",
+	ClientSecret: "JkU6MpovsEFBNZZVTwYtr0sl4tC8milc",
 	RedirectURL:  "http://localhost:3000/callback",
 	Scopes:       []string{"openid", "profile", "email"},
 	Endpoint: oauth2.Endpoint{

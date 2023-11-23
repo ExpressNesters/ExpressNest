@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "8092:8080"
+    environment:
+      - GOOGLE_CLIENT_ID='233586076258-agm1v31r0ibj3scg48ac8iu4d9i2pu6l.apps.googleusercontent.com'
+      - GOOGLE_CLIENT_SECRET='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'
+      - FIREBASE_PROJECT_ID='auth-49d42'

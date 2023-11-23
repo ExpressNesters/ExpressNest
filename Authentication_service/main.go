@@ -99,7 +99,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 
 func getUserInfo(token *oauth2.Token) (map[string]interface{}, error) {
 	client := oauth2Config.Client(context.Background(), token)
-	resp, err := client.Get("http://localhost:8080/auth/realms/Nest/protocol/openid-connect/userinfo")
+	resp, err := client.Get("http://localhost:8080/auth/realms/ExpressNest/protocol/openid-connect/userinfo")
 	if err != nil {
 		return nil, err
 	}

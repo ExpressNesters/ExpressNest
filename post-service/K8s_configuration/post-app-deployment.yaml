@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-app-deployment
+  labels:
+    app: post-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post-app
+  template:
+    metadata:
+      labels:
+        app: post-app
+    spec:
+      containers:
+        - name: post-app-container
+          image: neeharikasingh/post-app:0.1
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POST_POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: post-app-configmap
+                  key: post_postgres_host
+            - name: POST_POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: post-app-configmap
+                  key: post_postgres_port
+            - name: POST_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: post-app-secret
+                  key: post_postgres_username
+            - name: POST_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: post-app-secret
+                  key: post_postgres_password
+            - name: KAFKA_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: post-app-configmap
+                  key: kafka_server
+            - name: KAFKA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: post-app-secret
+                  key: kafka_username
+            - name: KAFKA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: post-app-secret
+                  key: kafka_password

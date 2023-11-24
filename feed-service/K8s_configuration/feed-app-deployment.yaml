@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feeds-app-deployment
+  labels:
+    app: feeds-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feeds-app
+  template:
+    metadata:
+      labels:
+        app: feeds-app
+    spec:
+      containers:
+        - name: feeds-app-container
+          image: neeharikasingh/feeds-app:0.1
+          ports:
+            - containerPort: 8081
+          env:
+            - name: FEEDS_MONGO_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: feeds-app-configmap
+                  key: feeds_mongodb_host
+            - name: FEEDS_MONGODB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: feeds-app-configmap
+                  key: feeds_mongodb_port
+            - name: FEEDS_MONGO_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: feeds-app-secret
+                  key: feeds_mongodb_username
+            - name: FEEDS_MONGO_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: feeds-app-secret
+                  key: feeds_mongodb_password
+            - name: KAFKA_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: feeds-app-configmap
+                  key: kafka_server
+            - name: KAFKA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: feeds-app-secret
+                  key: kafka_username
+            - name: KAFKA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: feeds-app-secret
+                  key: kafka_password

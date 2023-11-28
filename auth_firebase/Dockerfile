@@ -24,6 +24,9 @@ WORKDIR /app
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main .
 
+# Copy the Firebase service account key file
+COPY auth.json .
+
 # This container exposes port 8080 to the outside world
 EXPOSE 8080
 

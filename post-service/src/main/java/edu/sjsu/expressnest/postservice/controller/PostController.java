@@ -58,7 +58,7 @@ public class PostController {
 	                
 	@GetMapping("/by-postIds")
 	public ResponseEntity<GetPostsResponse> getPostsByPostIds(@NotNull @RequestParam List<Long> postIds,
-			@PageableDefault(page = 0, size = 10) Pageable pageable) {
+			@PageableDefault(page = 0, size = 10, sort = "createdAt,desc") Pageable pageable) {
 		GetPostsResponse retrievedPosts = postService.getPostsByPostIds(postIds, pageable);
 		return new ResponseEntity<>(retrievedPosts, HttpStatus.OK);
 	}

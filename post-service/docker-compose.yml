@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      POST_POSTGRES_HOST: db
+      POST_POSTGRES_PORT: 5432
+      POST_POSTGRES_USER: postgres
+      POST_POSTGRES_PASSWORD: password
+      S3_API_KEY: your_s3_api_key
+      S3_SECRET_KEY: your_s3_secret_key
+      KAFKA_SERVER: kafka:9092
+      KAFKA_USERNAME: 
+      KAFKA_PASSWORD: 
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+    depends_on:
+      - db
+      - kafka
+      - zookeeper
+      - redis
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: expressnestpostdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

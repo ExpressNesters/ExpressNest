@@ -48,7 +48,6 @@ public class PostService {
 	private PostEventProducer postEventProducer;
 
 	public GetPostResponse getPostByPostId(long postId) throws ResourceNotFoundException {
-		System.out.println("Post ID : " + postId);
 		return postRepository.findById(postId)
 				.map(postMapper::toGetPostResponse)
 				.orElseThrow(() -> new ResourceNotFoundException(
@@ -65,6 +64,7 @@ public class PostService {
 		return postMapper.toGetPostsResponse(posts);
 	}
 	
+	@Transactional
 	public CreatePostResponse createPost(CreatePostRequest createPostRequest) {
 		Post post = postMapper.toPost(createPostRequest);
 		post.setTotalNoOfComments(0);
@@ -84,9 +84,11 @@ public class PostService {
 		Post post = postMapper.toPost(createPostRequest);
 		post.setTotalNoOfComments(0);
 		post.setTotalNoOfReactions(0);
-		Attachment createdAttachment = attachmentService.createAttachment(file);
-		createdAttachment.setPost(post);
-		post.setAttachments(Collections.singletonList(createdAttachment));
+		if (file != null) {
+			Attachment createdAttachment = attachmentService.createAttachment(file);
+			createdAttachment.setPost(post);
+			post.setAttachments(Collections.singletonList(createdAttachment));
+		}
 		Post createdPost = postRepository.save(post);
 		PostEvent postEvent = PostEvent.builder()
 				.postId(createdPost.getPostId())

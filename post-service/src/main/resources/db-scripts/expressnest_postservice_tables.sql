@@ -10,9 +10,9 @@ CREATE TABLE en_users (
     username  VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL
-)
+);
 
-CREATE TABLE en_posts1 (
+CREATE TABLE en_posts (
     post_id BIGINT PRIMARY KEY DEFAULT nextval('en_post_id_seq'),
     user_id BIGINT NOT NULL,
     post_text TEXT NOT NUll,
@@ -54,10 +54,3 @@ CREATE TABLE en_attachments (
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE
 );
-
-CREATE TABLE en_users (
-    user_id BIGINT PRIMARY KEY,
-    username VARCHAR(255),
-    password VARCHAR(255),
-    email VARCHAR(255)
-)

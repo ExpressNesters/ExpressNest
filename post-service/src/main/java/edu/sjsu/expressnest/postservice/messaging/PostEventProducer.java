@@ -3,6 +3,7 @@ package edu.sjsu.expressnest.postservice.messaging;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,8 @@ public class PostEventProducer {
 
 	private final KafkaTemplate<String, PostEvent> kafkaTemplate;
 	
-	private String topicName = "post-events";
+	@Value("${expressnest.postservice.kafka.topicname}")
+	private String topicName;
 
 	@Autowired
 	public PostEventProducer(KafkaTemplate<String, PostEvent> kafkaTemplate) {

@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  auth:
+    build: .
+    ports:
+      - "8098:8098"
+    networks:
+      - shared_network
+    # Other configurations...
+
+
+networks:
+  shared_network:
+    external: true

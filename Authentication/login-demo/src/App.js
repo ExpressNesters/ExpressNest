@@ -3,6 +3,7 @@ import axios from 'axios';
 import Welcome from './Welcome';
 import { auth, googleAuthProvider, signInWithPopup,githubAuthProvider } from './firebaseConfig';
 import Register from './register';
+import PasswordRecovery from './PasswordRecovery';
 
 function App() {
   const [email, setEmail] = useState('');
@@ -87,6 +88,7 @@ function App() {
           <button onClick={() => setShowRegister(true)}>Go to Register</button>
         </>
       )}
+      <PasswordRecovery />
     </div>
 
 

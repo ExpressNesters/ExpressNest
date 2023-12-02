@@ -39,6 +39,8 @@ CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+"""####################### REGISTRATION FLOW ############################"""
+
 @app.route('/users', methods=['POST'])
 def register_user():
     data = request.json
@@ -131,7 +133,7 @@ def validate_2fa():
     else:
         return jsonify({"error": "Invalid 2FA token"}), 400
 
-
+"""####################### LOGIN FLOW ############################"""
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -203,7 +205,66 @@ def login_with_oauth(data, provider):
         logging.info(str(e))
         return jsonify({"error": str(e)}), 401
 
+"""####################### PASSWORD RECOVERY FLOW ############################"""
+@app.route('/request_password_recovery', methods=['POST'])
+def request_password_recovery():
+    data = request.json
+    user_email = data.get("email")
+    token = data.get("token")
 
+    # Verify that the email is provided
+    if not user_email or not token:
+        return jsonify({"error": "Email and token are required"}), 400
+
+    # Retrieve user's 2FA secret from Firestore
+    user_ref = db.collection('users').document(user_email)
+    user_doc = user_ref.get()
+    if not user_doc.exists:
+        return jsonify({"error": "User not found"}), 404
+
+    secret = user_doc.to_dict().get('TwoFactorSecret')
+
+    # Verify the 2FA token
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(token):
+        return jsonify({"error": "Invalid 2FA token"}), 401
+
+    # If verification is successful, proceed with password recovery
+    # (Further steps will be implemented in subsequent chunks)
+
+    return jsonify({"success": "2FA verification successful, proceed to reset password"}), 200
+
+@app.route('/reset_password', methods=['PUT'])
+def reset_password():
+    data = request.json
+    user_email = data.get("email")
+    new_password = data.get("newPassword")  # Ensure this is hashed if necessary
+
+    # Verify that email and new password are provided
+    if not user_email or not new_password:
+        return jsonify({"error": "Email and new password are required"}), 400
+
+    # Update password in Firestore
+    user_ref = db.collection('users').document(user_email)
+    user_doc = user_ref.get()
+    if not user_doc.exists:
+        return jsonify({"error": "User not found"}), 404
+
+    # Update Firestore with the new password
+    user_ref.update({"HashedPassword": new_password})
+
+    # Send PUT request to external service
+    user_data = user_doc.to_dict()
+    userID = user_data.get("UserID")
+    """
+    external_service_url = f"http://user-app-1:8088/users/{userID}"
+    logging.info(new_password)
+    external_response = requests.put(external_service_url, json={"HashedPassword": new_password})
+
+    if external_response.status_code != 200:
+        return jsonify({"error": "Failed to update password in external service"}), external_response.status_code
+    """
+    return jsonify({"success": "Password updated successfully"}), 200
 
 
 if __name__ == '__main__':

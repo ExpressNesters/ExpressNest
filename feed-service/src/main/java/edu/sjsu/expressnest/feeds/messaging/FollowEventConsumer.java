@@ -19,7 +19,7 @@ public class FollowEventConsumer {
 	@Autowired
 	private UserFollowersRepository userFollowersRepository;
 	
-	@KafkaListener(topics = "follow-events", containerFactory = "followEventKafkaListenerContainerFactory")
+	@KafkaListener(topics = "${expressnest.feedservice.kafka.topicname.followevent}", containerFactory = "followEventKafkaListenerContainerFactory")
 	public UserFollowers processPostEvents(FollowEvent followEvent) throws ResourceNotFoundException {
 	    FollowEventType eventType = FollowEventType.valueOf(followEvent.getType());
 	    switch (eventType) {

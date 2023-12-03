@@ -23,7 +23,7 @@ public class PostEventConsumer {
 	@Autowired
 	private UserFeedsRepository userFeedsRepository;
 	
-	@KafkaListener(topics = "post-events", containerFactory = "postEventKafkaListenerContainerFactory")
+	@KafkaListener(topics = "${expressnest.feedservice.kafka.topicname.postevent}", containerFactory = "postEventKafkaListenerContainerFactory")
 	public void processPostEvents(PostEvent postEvent) {
 	    PostEventType eventType = PostEventType.valueOf(postEvent.getType());
 	    switch (eventType) {

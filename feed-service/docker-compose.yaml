@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      KAFKA_SERVER:
+      KAFKA_USERNAME:
+      KAFKA_PASSWORD:
+      POST_EVENTS_TOPIC: post-events-dev
+      FOLLOW_EVENTS_TOPIC: follow-events-dev
+      FEEDS_MONGO_DB_HOST: mongo
+      FEEDS_MONGODB_PORT: 27017
+
+  mongo:
+    image: mongo:latest  
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongo_data:

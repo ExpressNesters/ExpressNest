@@ -15,7 +15,7 @@ public class CreatePostRequest {
 	private long userId;
 	
 	@NotBlank(message = "{error.post.text.blank}")
-    @Size(max = 250, message = "{error.post.text.size}")
+    @Size(max = 280, message = "{error.post.text.size}")
 	private String postText;
 	
 	@NotNull(message = "{error.post.privacy.null}")

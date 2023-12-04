@@ -1,4 +1,0 @@
-Flask
-neo4j
-python-dotenv
-werkzeug

@@ -1,31 +1,19 @@
 version: '3.8'
 services:
-  web:
+  app:
     build: .
     ports:
       - "8089:8089"
     environment:
-      - NEO4J_URI=neo4j://db:7687
+      MONGO_URI: "mongodb://mongo:27017"
+      KAFKA_SERVER: "pkc-rgm37.us-west-2.aws.confluent.cloud:9092"
+      KAFKA_USERNAME: "34DH7DSL6GRCBCM6"
+      KAFKA_PASSWORD: "+wdgF4DcTxg7SblSs2uLrx2gdvHWawvbz7TluC/Q74yHrlT8l+fIdrxGg4wX56rM"
+      KAFKA_TOPIC: "follow-events"
     depends_on:
-      - db
-    networks:
-      - app-network
+      - mongo
 
-  db:
-    image: neo4j:latest
+  mongo:
+    image: mongo
     ports:
-      - "7474:7474"
-      - "7687:7687"
-    volumes:
-      - neo4j_data:/data
-    environment:
-      - NEO4J_AUTH=none
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  neo4j_data:
+      - "27017:27017"

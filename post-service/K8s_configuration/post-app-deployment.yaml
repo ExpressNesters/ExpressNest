@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: post-app-container
-          image: neeharikasingh/post-app:0.1
+          image: neeharikasingh/post-app:0.4
           ports:
             - containerPort: 8080
           env:
@@ -40,6 +40,11 @@ spec:
                 secretKeyRef:
                   name: post-app-secret
                   key: post_postgres_password
+            - name: POST_EVENTS_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: post-app-configmap
+                  key: post_events_topic
             - name: KAFKA_SERVER
               valueFrom:
                 configMapKeyRef:
@@ -55,3 +60,13 @@ spec:
                 secretKeyRef:
                   name: post-app-secret
                   key: kafka_password
+            - name: S3_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: post-app-secret
+                  key: s3_api_key
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: post-app-secret
+                  key: s3_secret_key

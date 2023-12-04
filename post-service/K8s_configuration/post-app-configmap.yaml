@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: post-app-configmap
 data:
-  post_postgres_host: "post-postgres-svc"
+  post_postgres_host: "expressnestpostgressql.cjsifoaecv3j.us-west-1.rds.amazonaws.com"
   post_postgres_port: "5432"
   kafka_server: "pkc-rgm37.us-west-2.aws.confluent.cloud:9092"
+  post_events_topic: "post-events"

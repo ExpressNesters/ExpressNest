@@ -6,28 +6,26 @@ data:
   nginx.conf: |
     events {}
     http {
-      log_format my_format '... host: $host, http_host: $http_host ...';
+      log_format my_format '$remote_addr - $remote_user [$time_local] "$request" '
+                                                        '$status $body_bytes_sent "$http_referer" '
+                                                        '"$http_user_agent" $request_time';
+
       access_log /var/log/nginx/access.log my_format;
-  
+      error_log /var/log/nginx/error.log warn;
       server {
-        listen 80;
+        listen 8080;
 
         location /posts/ {
-          proxy_pass http://post-app-service:8080/;
+          proxy_pass http://post-app-service:8080/posts/;
         }
         
         location /comments/ {
-            proxy_pass http://post-app-service:8080/;
+            proxy_pass http://post-app-service:8080/comments/;
         }
 
         location /reactions/ {
-            proxy_pass http://post-app-service:8080/;
+            proxy_pass http://post-app-service:8080/reactions/;
         }
-        
-        location /feeds/ {
-            proxy_pass http://feeds-app-service:8081/;
-        }
-        
       }
       
     }

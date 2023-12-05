@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: feeds-app-container
-          image: neeharikasingh/feeds-app:0.1
+          image: neeharikasingh/feeds-app:0.7
           ports:
             - containerPort: 8081
           env:
@@ -40,6 +40,16 @@ spec:
                 secretKeyRef:
                   name: feeds-app-secret
                   key: feeds_mongodb_password
+            - name: FOLLOW_EVENTS_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: feeds-app-configmap
+                  key: follow_events_topic
+            - name: POST_EVENTS_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: feeds-app-configmap
+                  key: post_events_topic
             - name: KAFKA_SERVER
               valueFrom:
                 configMapKeyRef:

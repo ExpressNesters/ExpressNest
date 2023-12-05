@@ -26,6 +26,9 @@ data:
         location /reactions/ {
             proxy_pass http://post-app-service:8080/reactions/;
         }
+        location /feeds/ {
+            proxy_pass http://feeds-app-service:8081/feeds/;
+        }
       }
       
     }

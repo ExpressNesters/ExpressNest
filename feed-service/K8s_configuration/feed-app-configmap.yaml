@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: feeds-app-configmap
 data:
-  feeds_mongodb_host: "feeds-mongodb-svc"
+  feeds_mongodb_host: "expressnestmongocluster-w2.cluster-clkrwn5zmdv7.us-west-2.docdb.amazonaws.com"
   feeds_mongodb_port: "27017"
   kafka_server: "pkc-rgm37.us-west-2.aws.confluent.cloud:9092"
+  follow_events_topic: "follow-events"
+  post_events_topic: "post-events"

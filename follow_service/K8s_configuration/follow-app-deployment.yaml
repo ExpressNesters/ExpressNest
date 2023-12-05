@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: follow-app-deployment
+  labels:
+    app: follow-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: follow-app
+  template:
+    metadata:
+      labels:
+        app: follow-app
+    spec:
+      containers:
+        - name: follow-app-container
+          image: neeharikasingh/follow-app:0.1
+          ports:
+            - containerPort: 8089
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: follow-app-configmap
+                  key: mongo_uri
+            - name: KAFKA_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: follow-app-configmap
+                  key: follow_events_topic
+            - name: KAFKA_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: follow-app-configmap
+                  key: kafka_server
+            - name: KAFKA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: follow-app-secret
+                  key: kafka_username
+            - name: KAFKA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: follow-app-secret
+                  key: kafka_password

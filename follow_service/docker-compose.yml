@@ -5,7 +5,7 @@ services:
     ports:
       - "8089:8089"
     environment:
-      MONGO_URI: "mongodb://mongo:27017"
+      MONGO_URI: "mongodb://expressnestuser:expressnestpwd@expressnestmongocluster-w2.cluster-clkrwn5zmdv7.us-west-2.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
       KAFKA_SERVER: "pkc-rgm37.us-west-2.aws.confluent.cloud:9092"
       KAFKA_USERNAME: "34DH7DSL6GRCBCM6"
       KAFKA_PASSWORD: "+wdgF4DcTxg7SblSs2uLrx2gdvHWawvbz7TluC/Q74yHrlT8l+fIdrxGg4wX56rM"

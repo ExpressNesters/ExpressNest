@@ -10,11 +10,11 @@ services:
       POST_POSTGRES_PORT: 5432
       POST_POSTGRES_USER: postgres
       POST_POSTGRES_PASSWORD: password
-      S3_API_KEY: 
-      S3_SECRET_KEY:
-      KAFKA_SERVER:
-      KAFKA_USERNAME:
-      KAFKA_PASSWORD:
+      S3_API_KEY: AKIARA622CUMFZJADNHB
+      S3_SECRET_KEY: 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
+      KAFKA_SERVER: pkc-rgm37.us-west-2.aws.confluent.cloud:9092
+      KAFKA_USERNAME: 34DH7DSL6GRCBCM6
+      KAFKA_PASSWORD: +wdgF4DcTxg7SblSs2uLrx2gdvHWawvbz7TluC/Q74yHrlT8l+fIdrxGg4wX56rM
       POST_EVENTS_TOPIC: post-events-dev
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379

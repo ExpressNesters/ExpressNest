@@ -29,6 +29,15 @@ data:
         location /feeds/ {
             proxy_pass http://feeds-app-service:8081/feeds/;
         }
+        location /follow {
+            proxy_pass http://follow-app-service:8089/follow;
+        }
+        location /unfollow {
+            proxy_pass http://follow-app-service:8089/unfollow;
+        }
+        location /followers/ {
+            proxy_pass http://follow-app-service:8089/followers/;
+        }
       }
       
     }

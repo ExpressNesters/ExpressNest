@@ -27,6 +27,11 @@ function PasswordRecovery() {
       const response = await axios.put('http://localhost:8098/reset_password', { email, newPassword });
       if (response.status === 200) {
         setMessage('Password reset successfully.');
+        // Resetting the state to initial form after successful password reset
+        setIsVerified(false);
+        setEmail('');
+        setTwoFactorCode('');
+        setNewPassword('');
       } else {
         setMessage('Password reset failed.');
       }
@@ -40,7 +45,7 @@ function PasswordRecovery() {
       {!isVerified ? (
         <>
           <h2>Password Recovery</h2>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Username" />
           <input type="text" value={twoFactorCode} onChange={(e) => setTwoFactorCode(e.target.value)} placeholder="2FA Code" />
           <button onClick={handleVerify}>Verify</button>
         </>
@@ -57,4 +62,5 @@ function PasswordRecovery() {
 }
 
 export default PasswordRecovery;
+
 

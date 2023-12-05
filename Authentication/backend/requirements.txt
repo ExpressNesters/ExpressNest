@@ -9,6 +9,7 @@ Pillow
 Python-IO
 uuid
 flask
+pyjwt
 Flask
 jsonify
 flask_session
@@ -20,3 +21,4 @@ firestore
 pyotp
 qrcode
 firebase-admin
+pyjwt

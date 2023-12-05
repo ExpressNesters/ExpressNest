@@ -17,6 +17,7 @@ import qrcode
 from firebase_admin import credentials, auth
 import requests
 import logging
+import jwt
 
 # Inside the registration function
 user_uid = str(uuid.uuid4())
@@ -114,7 +115,7 @@ def validate_2fa():
     data = request.json
     user_email = data.get("email")
     token = data.get("token")
-
+    logging.info(user_email)
     if not user_email or not token:
         return jsonify({"error": "Email and token are required"}), 400
 
@@ -127,10 +128,53 @@ def validate_2fa():
     secret = user_doc.to_dict().get('TwoFactorSecret')
     totp = pyotp.TOTP(secret)
     user_data = user_doc.to_dict()
+    role = "USER"
+    if("ROLE" in user_data):
+        role = "ADMIN"
     # Verify the 2FA token
+    encoded_jwt = jwt.encode({"ROLE": role,"userID":user_data.get('UserID')}, "expressNesters", algorithm="HS256")
     if totp.verify(token):
-        return jsonify({"email": user_email, "username": user_data.get('Username'), "userID": user_data.get('UserID')}), 200
+        return jsonify({"status":"2FA verified","email": user_email, "username": user_data.get('Username'), "userID": encoded_jwt}), 200
     else:
+        return jsonify({"error": "Invalid 2FA token"}), 400
+
+@app.route('/validate_2fa_v2', methods=['POST'])
+def validate_2fa_v2():
+    data = request.json
+    user_email = data.get("email")
+    token = data.get("token")
+    logging.info(user_email)
+    logging.info(token)
+    if not user_email or not token:
+        return jsonify({"error": "Email and token are required"}), 400
+
+    # Query for a user with the given username
+    users_ref = db.collection('users')
+    query = users_ref.where('Username', '==', user_email)
+    results = query.stream()
+
+    # Fetch the first user that matches the query
+    user_data = None
+    for doc in results:
+        user_data = doc.to_dict()
+        break
+    logging.info(user_data)
+    
+    if not user_data:
+        return jsonify({"error": "User not found"}), 404
+
+    secret = user_data.get('TwoFactorSecret')
+    totp = pyotp.TOTP(secret)
+    role = "USER"
+    if("ROLE" in user_data):
+        role = "ADMIN"
+    # Verify the 2FA token
+    encoded_jwt = jwt.encode({"ROLE": role,"userID":user_data.get('UserID')}, "expressNesters", algorithm="HS256")
+    if totp.verify(token):
+        logging.info("OKAY")
+        return jsonify({"status":"2FA verified", "email": user_email, "username": user_data.get('Username'), "userID": encoded_jwt}), 200
+    else:
+        
         return jsonify({"error": "Invalid 2FA token"}), 400
 
 """####################### LOGIN FLOW ############################"""
@@ -147,49 +191,63 @@ def login():
     else:
         return jsonify({"error": "Invalid login type"}), 400
 
+
+
 def login_with_email(data):
-    logger.info("email")
+    logger = logging.getLogger()
+    logger.info("Username")
     logger.info(data)
-    email = data.get("email")
+    username = data.get("email")
     password = data.get("password")  # Assume hashed password
 
-    user_ref = db.collection('users').document(email)
-    user_doc = user_ref.get()
-    if user_doc.exists:
-        user_data = user_doc.to_dict()
-        if user_data['HashedPassword'] == password:
-            # Set up session
-            session['email'] = email
-            session['username'] = user_data.get('Username')
-            session['user_id'] = user_data.get('UserID')
-            return jsonify({"email": email, "username": user_data.get('Username'), "userID": user_data.get('UserID')}), 200
-        else:
-            return jsonify({"error": "Invalid credentials"}), 401
+    # Query for a user with the given username
+    users_ref = db.collection('users')
+    query = users_ref.where('Username', '==', username)
+    results = query.stream()
+
+    # Fetch the first user that matches the query
+    user_data = None
+    for doc in results:
+        user_data = doc.to_dict()
+        break
+
+    # Check if user was found and verify password
+    if user_data and user_data['HashedPassword'] == password:
+        # Set up session
+        email = doc.id  # The document ID is the email
+        session['email'] = email
+        session['username'] = user_data.get('Username')
+        session['user_id'] = user_data.get('UserID')
+        return jsonify({"status":"2FA required", "email": email, "username": user_data.get('Username'), "userID": user_data.get('UserID')}), 200
+    elif user_data:
+        return jsonify({"error": "Invalid credentials"}), 401
     else:
         return jsonify({"error": "User not found"}), 404
+
+
 
 def login_with_oauth(data, provider):
     id_token = data.get("idToken")
 
     # Verify the Firebase ID token
-    logger.info("id")
+    logger.info("ID Token: ")
     logger.info(id_token)
     try:
-        if(provider=="google"):
-            decoded_token = auth.verify_id_token(id_token)
+        decoded_token = auth.verify_id_token(id_token)
+        firebase_user_id = decoded_token['uid']
+        
+        if provider == "google":
             logger.info(decoded_token)
+            email = decoded_token['uid']
+            logger.info(email)
+        elif provider == "github":
+            # Construct a pseudo-email with Firebase UID for GitHub users
+            email = f"github_{firebase_user_id}@example.com"
+            logger.info(email)
         else:
-            decoded_token = auth.verify_id_token(id_token)
-            github_id = decoded_token["firebase"]["identities"]["github"][0]
-            github_user_url = f'https://api.github.com/users/{github_id}'
-            github_response = requests.get(github_user_url)
-            github_user_data = github_response.json()
-            decoded_token = github_user_data
-            
-        email = decoded_token['email']
-        logger.info(email)
+            return jsonify({"error": "Unsupported provider"}), 400
 
-        # Check if this email exists in our Firestore database
+        # Check if this Firebase UID exists in our Firestore database
         user_ref = db.collection('users').document(email)
         user_doc = user_ref.get()
         if user_doc.exists:
@@ -198,12 +256,14 @@ def login_with_oauth(data, provider):
             session['email'] = email
             session['username'] = user_data.get('Username')
             session['user_id'] = user_data.get('UserID')
-            return jsonify({"email": email, "username": user_data.get('Username'), "userID": user_data.get('UserID')}), 200
+            return jsonify({"status":"2FA required","email": email, "username": user_data.get('Username'), "userID": user_data.get('UserID')}), 200
         else:
-            return jsonify({"error": "User not registered"}), 404
+            # User not registered, return 200 status with indication
+            return jsonify({"status": "User not registered", "email": email}), 200
     except Exception as e:
         logging.info(str(e))
         return jsonify({"error": str(e)}), 401
+
 
 """####################### PASSWORD RECOVERY FLOW ############################"""
 @app.route('/request_password_recovery', methods=['POST'])
@@ -216,13 +276,22 @@ def request_password_recovery():
     if not user_email or not token:
         return jsonify({"error": "Email and token are required"}), 400
 
-    # Retrieve user's 2FA secret from Firestore
-    user_ref = db.collection('users').document(user_email)
-    user_doc = user_ref.get()
-    if not user_doc.exists:
+    # Query for a user with the given username
+    users_ref = db.collection('users')
+    query = users_ref.where('Username', '==', user_email)
+    results = query.stream()
+
+    # Fetch the first user that matches the query
+    user_data = None
+    for doc in results:
+        user_data = doc.to_dict()
+        break
+
+    
+    if not user_data:
         return jsonify({"error": "User not found"}), 404
 
-    secret = user_doc.to_dict().get('TwoFactorSecret')
+    secret = user_data.get('TwoFactorSecret')
 
     # Verify the 2FA token
     totp = pyotp.TOTP(secret)
@@ -244,28 +313,23 @@ def reset_password():
     if not user_email or not new_password:
         return jsonify({"error": "Email and new password are required"}), 400
 
-    # Update password in Firestore
-    user_ref = db.collection('users').document(user_email)
-    user_doc = user_ref.get()
-    if not user_doc.exists:
+    users_ref = db.collection('users')
+    query = users_ref.where('Username', '==', user_email)
+    results = query.stream()
+
+    # Fetch the first user that matches the query
+    user_doc = None
+    for doc in results:
+        user_doc = doc
+        break
+
+    if not user_doc:
         return jsonify({"error": "User not found"}), 404
 
-    # Update Firestore with the new password
-    user_ref.update({"HashedPassword": new_password})
+    # Update the user's hashed password
+    user_doc.reference.update({"HashedPassword": new_password})
 
-    # Send PUT request to external service
-    user_data = user_doc.to_dict()
-    userID = user_data.get("UserID")
-    """
-    external_service_url = f"http://user-app-1:8088/users/{userID}"
-    logging.info(new_password)
-    external_response = requests.put(external_service_url, json={"HashedPassword": new_password})
-
-    if external_response.status_code != 200:
-        return jsonify({"error": "Failed to update password in external service"}), external_response.status_code
-    """
     return jsonify({"success": "Password updated successfully"}), 200
-
 
 if __name__ == '__main__':
     app.run(debug=True, port=8098)

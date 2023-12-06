@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: post-app-container
-          image: neeharikasingh/post-app:0.4
+          image: neeharikasingh/post-app:0.6
           ports:
             - containerPort: 8080
           env:

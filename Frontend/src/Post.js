@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import './Post.css'; // Make sure you have your CSS file for styling
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import CommentForm from './components/CommentForm';
+import CommentsList from './components/CommentsList';
+import './Post.css'; // Make sure your CSS file is correctly referenced
 
 const Post = ({ postData, onPostUpdated }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(postData.postText);
+  const [refreshComments, setRefreshComments] = useState(false);
+  const currentUserId = 1; // Assuming currentUserId is 1, replace with actual logic
 
   const handleEditClick = () => {
     setIsEditing(true);
   };
+
 
 
   const handleSaveClick = async () => {
@@ -55,31 +62,42 @@ const Post = ({ postData, onPostUpdated }) => {
     }
   };
 
+  const refreshCommentsCallback = () => {
+    setRefreshComments(prev => !prev); // Toggle to trigger re-fetch in CommentsList
+  };
+
   if (postData.deletedAt !== null) {
     return null;
   }
 
-return (
+  return (
     <div className="post">
       {isEditing ? (
         <>
-          <textarea 
-            value={editText} 
-            onChange={(e) => setEditText(e.target.value)} 
-          />
+          <textarea value={editText} onChange={(e) => setEditText(e.target.value)} />
           <button onClick={handleSaveClick}>Save</button>
           <button onClick={() => setIsEditing(false)}>Cancel</button>
         </>
       ) : (
         <>
-          <p>{postData.postText}</p>
-          <button onClick={handleEditClick}>Edit</button>
-          <button onClick={handleDeleteClick}>Delete</button>
+          <div className="post-content">
+            <p>{postData.postText}</p>
+            <div className="post-actions">
+              {currentUserId === postData.userId && (
+                <>
+                  <FontAwesomeIcon icon={faEdit} onClick={handleEditClick} />
+                  <FontAwesomeIcon icon={faTrash} onClick={handleDeleteClick} />
+                </>
+              )}
+            </div>
+          </div>
+          
+          <CommentsList postId={postData.postId} userId={currentUserId} refreshTrigger={refreshComments} />
+
         </>
       )}
     </div>
   );
-  
 };
 
 export default Post;

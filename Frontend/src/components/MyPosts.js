@@ -1,65 +1,72 @@
-// src/components/MyPosts.js
 import React, { useState, useEffect } from 'react';
 import CreatePostForm from './CreatePostForm';
 import Post from '../Post';
-import './MyPosts.css'; // Ensure this is correctly imported
+import './MyPosts.css';
 
 const MyPosts = () => {
-  const [posts, setPosts] = useState([]);
+  const [allPosts, setAllPosts] = useState([]);
+  const [currentPosts, setCurrentPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10;
   const userId = 1; // Replace with actual user ID
 
   useEffect(() => {
-    fetchPosts(currentPage);
-  }, [currentPage]);
+    fetchAllPages(0, []);
+  }, []);
 
-  const fetchPosts = async (page) => {
+  const fetchAllPages = async (page, accumulatedPosts) => {
     try {
-      const response = await fetch(`http://a83ab0f0e6671462c87d9c3980002854-1490594495.us-west-2.elb.amazonaws.com/posts/user/${userId}?page=${page}&size=10&sort=createdAt,desc`);
+      const response = await fetch(`http://a83ab0f0e6671462c87d9c3980002854-1490594495.us-west-2.elb.amazonaws.com/posts/user/${userId}?page=${page}&size=${pageSize}&sort=createdAt,desc`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      setPosts(data.postDTOs);
-      setTotalPages(data.totalPages);
+      const newPosts = accumulatedPosts.concat(data.postDTOs.filter(post => post.deletedAt === null));
+      
+      if (page < data.totalPages - 1) {
+        fetchAllPages(page + 1, newPosts);
+      } else {
+        setAllPosts(newPosts);
+        setTotalPages(Math.ceil(newPosts.length / pageSize));
+        setCurrentPage(0);
+        updateCurrentPosts(0, newPosts);
+      }
     } catch (error) {
       console.error('Failed to fetch posts:', error);
     }
   };
 
-  const handlePostCreated = () => {
-    fetchPosts(0);
+  const updateCurrentPosts = (page, posts) => {
+    const indexOfLastPost = (page + 1) * pageSize;
+    const indexOfFirstPost = indexOfLastPost - pageSize;
+    setCurrentPosts(posts.slice(indexOfFirstPost, indexOfLastPost));
   };
-  const handlePostUpdated = () => {
-    fetchPosts(currentPage); // Re-fetch the posts on update
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    updateCurrentPosts(page, allPosts);
   };
 
-// Inside MyPosts.js
+  const handlePostCreatedOrDeleted = () => {
+    fetchAllPages(0, []);
+  };
 
-// Inside MyPosts.js
-
-return (
+  return (
     <div>
-      <CreatePostForm onPostCreated={handlePostCreated} />
+      <CreatePostForm onPostCreated={handlePostCreatedOrDeleted} />
   
-      {/* Displaying each post */}
-      <div>
-        {posts.map(post => (
-          <Post 
-            key={post.postId} 
-            postData={post} 
-            onPostUpdated={handlePostUpdated} 
-          />
+      <div className="my-posts">
+        {currentPosts.map(post => (
+          <Post key={post.postId} postData={post} onPostUpdated={handlePostCreatedOrDeleted} />
         ))}
       </div>
   
-      {/* Pagination */}
       <div className="pagination">
         {Array.from({ length: totalPages }, (_, index) => (
           <button 
             key={index} 
-            onClick={() => setCurrentPage(index)} 
+            onClick={() => handlePageChange(index)} 
             className={currentPage === index ? 'active' : ''}
           >
             {index + 1}
@@ -68,8 +75,6 @@ return (
       </div>
     </div>
   );
-  
-  
 };
 
 export default MyPosts;

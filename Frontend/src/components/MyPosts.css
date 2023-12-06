@@ -44,3 +44,26 @@
     color: white;
   }
   
+  .my-posts {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    margin-bottom: 20px; /* Space between posts */
+  }
+  
+  /* Additional styling as needed */
+  .my-posts-container {
+    max-width: 600px; /* Adjust the width as per your preference */
+    margin: 0 auto; /* Centering the container */
+    padding: 20px;
+  }
+  
+ 
+  .my-posts {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+  

@@ -1,0 +1,164 @@
+ import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import "./Comment.css";
+
+const Comment = ({ commentData, userId, onCommentDeleted }) => {
+  const handleDeleteClick = async () => {
+    try {
+      const response = await fetch(`http://a83ab0f0e6671462c87d9c3980002854-1490594495.us-west-2.elb.amazonaws.com/comments/${commentData.commentId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      onCommentDeleted(); // Notify parent component to refresh comments
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+    }
+  };
+
+  return (
+    <div className="comment">
+      <p>{commentData.commentText}</p>
+      {/* Show delete button only if the current user created the comment */}
+      {userId === commentData.userId && (
+        <FontAwesomeIcon icon={faTrash} onClick={handleDeleteClick} className="comment-delete-icon" />
+      )}
+    </div>
+  );
+};
+
+export default Comment;
+, // src/components/CommentForm.js
+
+import React, { useState } from 'react';
+import "./CommentForm.css"
+
+const CommentForm = ({ userId, postId, onCommentSubmitted }) => {
+  const [commentText, setCommentText] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!commentText) return;
+
+    try {
+      const response = await fetch(`http://a83ab0f0e6671462c87d9c3980002854-1490594495.us-west-2.elb.amazonaws.com/comments/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commentText, userId, postId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      if (response.ok) {
+        // Assuming onCommentSubmitted is a prop passed to CommentForm
+        onCommentSubmitted(); // This should trigger a refresh of comments in CommentsList
+      }
+    
+      setCommentText('');
+      onCommentSubmitted(); // Notify parent component to refresh comments
+    } catch (error) {
+      console.error('Failed to submit comment:', error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="comment-form">
+      <textarea 
+        value={commentText} 
+        onChange={(e) => setCommentText(e.target.value)}
+        placeholder="Write a comment..."
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default CommentForm;
+import React, { useState, useEffect } from 'react';
+import Comment from './Comment';
+
+const CommentsList = ({ postId, userId }) => {
+  const [allComments, setAllComments] = useState([]);
+  const [currentComments, setCurrentComments] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10; // Adjust based on your page size
+
+  useEffect(() => {
+    fetchAllComments();
+  }, []);
+
+  const fetchAllComments = async () => {
+    let page = 0;
+    let hasMore = true;
+    let accumulatedComments = [];
+
+    while (hasMore) {
+      try {
+        const response = await fetch(`http://a83ab0f0e6671462c87d9c3980002854-1490594495.us-west-2.elb.amazonaws.com/comments/post/${postId}?page=${page}&size=10&sort=createdAt,desc`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        accumulatedComments = accumulatedComments.concat(data.commentDTOs.filter(comment => comment.deletedAt === null));
+
+        setTotalPages(Math.ceil(accumulatedComments.length / pageSize));
+        if (data.commentDTOs.length < 10 || page === data.totalPages - 1) {
+          hasMore = false;
+        } else {
+          page++;
+        }
+      } catch (error) {
+        console.error('Failed to fetch comments:', error);
+        hasMore = false;
+      }
+    }
+
+    setAllComments(accumulatedComments);
+    updateCurrentComments(0, accumulatedComments);
+  };
+
+  const updateCurrentComments = (page, comments) => {
+    const indexOfLastComment = (page + 1) * pageSize;
+    const indexOfFirstComment = indexOfLastComment - pageSize;
+    setCurrentComments(comments.slice(indexOfFirstComment, indexOfLastComment));
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    updateCurrentComments(page, allComments);
+  };
+
+  const handleCommentDeleted = () => {
+    fetchAllComments(); // Re-fetch all comments
+  };
+
+  return (
+    <div>
+      {currentComments.map(comment => (
+        <Comment 
+          key={comment.commentId} 
+          commentData={comment} 
+          userId={userId} 
+          onCommentDeleted={handleCommentDeleted}
+        />
+      ))}
+      <div className="pagination">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button 
+            key={index} 
+            onClick={() => handlePageChange(index)} 
+            className={currentPage === index ? 'active' : ''}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};

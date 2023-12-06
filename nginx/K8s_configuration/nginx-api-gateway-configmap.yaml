@@ -38,6 +38,9 @@ data:
         location /followers/ {
             proxy_pass http://follow-app-service:8089/followers/;
         }
+        location /users {
+            proxy_pass http://upm-app-service:8088/users;
+        }
       }
       
     }

@@ -74,7 +74,7 @@ public class CommentController {
 		return new ResponseEntity<>(updateCommentResponse, HttpStatus.OK);
 	}
 
-	@DeleteMapping("/{CommentId}")
+	@DeleteMapping("/{commentId}")
 	public ResponseEntity<DeleteCommentResponse> deleteComment(@NotNull @Positive @PathVariable long commentId)
 			throws ResourceNotFoundException {
 		DeleteCommentResponse deleteCommentResponse = commentService.deleteComment(commentId);

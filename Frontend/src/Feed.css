@@ -1,0 +1,23 @@
+.feed {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+  
+  .load-more-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    margin-top: 20px;
+    background-color: #3897f0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .load-more-btn:hover {
+    background-color: #2780e3;
+  }
+  

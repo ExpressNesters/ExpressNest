@@ -1,0 +1,20 @@
+/* src/components/Post.css */
+
+.post {
+    background-color: #fff;
+    border: 1px solid #e1e4e8;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .post p {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.5;
+  }
+  
+  /* Add more styles here as needed */
+  

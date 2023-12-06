@@ -8,6 +8,12 @@ import (
 	"strconv"
 	"strings"
 )
+func enableCors(w *http.ResponseWriter) {
+   (*w).Header().Set("Access-Control-Allow-Origin", "*")
+   (*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+   (*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+}
+
 
 func main() {
 	fmt.Println("Follow Service Starting...")
@@ -27,6 +33,7 @@ func main() {
 }
 
 func handleFollow(w http.ResponseWriter, r *http.Request) {
+enableCors(&w)
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -53,6 +60,7 @@ func handleFollow(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUnfollow(w http.ResponseWriter, r *http.Request) {
+enableCors(&w)
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -80,6 +88,7 @@ func handleUnfollow(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetFollowers(w http.ResponseWriter, r *http.Request) {
+enableCors(&w)
 	if r.Method != "GET" {
 		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
 		return

@@ -40,6 +40,26 @@ func InitDB(db *sql.DB) {
 
 }
 
+// CORS Middleware to allow cross-origin requests
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set headers to allow everything
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+		// Check if the request method is OPTIONS for preflight request
+		if r.Method == "OPTIONS" {
+			// Respond with 200 OK without passing the request down the handler chain
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Pass the request down the handler chain
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// Initialize the database connection
 	db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s "+
@@ -58,8 +78,10 @@ func main() {
 	// Initialize UserHandler with UserController
 	userHandler := handlers.NewUserHandler(userController)
 
-	// Create a new router
 	router := mux.NewRouter()
+
+	// Apply CORS middleware to all routes
+	router.Use(corsMiddleware)
 
 	// Define routes
 	router.HandleFunc("/users", userHandler.CreateUserHandler).Methods("POST")

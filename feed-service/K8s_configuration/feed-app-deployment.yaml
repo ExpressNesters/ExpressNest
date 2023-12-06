@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: feeds-app-container
-          image: neeharikasingh/feeds-app:0.7
+          image: neeharikasingh/feeds-app:0.8
           ports:
             - containerPort: 8081
           env:

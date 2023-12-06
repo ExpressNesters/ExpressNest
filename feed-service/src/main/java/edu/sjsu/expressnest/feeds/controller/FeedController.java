@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.sjsu.expressnest.feeds.exception.ResourceNotFoundException;
 import edu.sjsu.expressnest.feeds.model.UserFeeds;
+import edu.sjsu.expressnest.feeds.model.UserFollowers;
 import edu.sjsu.expressnest.feeds.service.UserFeedService;
+import edu.sjsu.expressnest.feeds.service.UserFollowersService;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -20,9 +22,18 @@ public class FeedController {
     @Autowired
     private UserFeedService userFeedService;
 
+    @Autowired
+    private UserFollowersService userFollowersService;
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<UserFeeds> getFeedsForUser(@PathVariable Long userId) throws ResourceNotFoundException {
         UserFeeds userFeeds = userFeedService.getFeedsForUser(userId);
         return ResponseEntity.ok(userFeeds);
+    }
+
+    @GetMapping("/user/{userId}/followers")
+    public ResponseEntity<UserFollowers> getFollowersForUser(@PathVariable Long userId) throws ResourceNotFoundException {
+        UserFollowers userFollowers = userFollowersService.getFollowersForUser(userId);
+        return ResponseEntity.ok(userFollowers);
     }
 }

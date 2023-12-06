@@ -17,7 +17,4 @@ public class UserFeedService {
 		return userFeedsRepository.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("UserId does not exist"));
 	}
-	
-	
-
 }

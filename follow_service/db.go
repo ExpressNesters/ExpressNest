@@ -21,6 +21,13 @@ type FollowersResponse struct {
 	Followers         []int `json:"followers"`
 }
 
+// Define a struct to hold the response data
+type FolloweesResponse struct {
+	UserID            int   `json:"user_id"`
+	NumberOfFollowers int   `json:"number_of_followers"`
+	Followees         []int `json:"followees"`
+}
+
 // InitMongoDB initializes the MongoDB client
 func InitMongoDB() {
 	var err error
@@ -160,10 +167,10 @@ func GetFollowees(userID int) (string, error) {
 		}
 	}
 
-	response := FollowersResponse{
+	response := FolloweesResponse{
 		UserID:            userID,
 		NumberOfFollowers: len(followees), // Update the field name as per your requirement
-		Followers:         followees,      // Update the field name as per your requirement
+		Followees:         followees,      // Update the field name as per your requirement
 	}
 
 	responseJSON, err := json.Marshal(response)

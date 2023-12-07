@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -18,34 +17,45 @@ func main() {
 	InitMongoDB()
 	InitKafkaProducer()
 
-	// Initialize the Gorilla Mux router
 	router := mux.NewRouter()
 
-	// Apply CORS middleware to all routes
-	router.Use(corsMiddleware)
+	// Setup routes with CORS handling for each route
+	router.HandleFunc("/follow", withCors(handleFollow)).Methods("POST", "OPTIONS")
+	router.HandleFunc("/unfollow", withCors(handleUnfollow)).Methods("POST", "OPTIONS")
+	router.HandleFunc("/followers/{id:[0-9]+}", withCors(handleGetFollowers)).Methods("GET", "OPTIONS")
+	router.HandleFunc("/followees/{id:[0-9]+}", withCors(handleGetFollowees)).Methods("GET", "OPTIONS")
 
-	// Define routes
-	router.HandleFunc("/follow", handleFollow).Methods("POST")
-	router.HandleFunc("/unfollow", handleUnfollow).Methods("POST")
-	router.HandleFunc("/followers/{id}", handleGetFollowers).Methods("GET")
-	// Add new route for getting followees
-	router.HandleFunc("/followees/{id}", handleGetFollowees).Methods("GET")
-
-	// Start the server
 	fmt.Println("Listening on port 8089...")
 	log.Fatal(http.ListenAndServe(":8089", router))
 }
 
-// New Handler for Getting Followees
-func handleGetFollowees(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
-		return
-	}
+// CORS middleware specifically for POST requests
+func withCors(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		setCorsHeaders(w)
 
+		// Pre-flight request handling for POST
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		h(w, r)
+	}
+}
+
+// Set CORS headers
+func setCorsHeaders(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+}
+
+// Handle the "/followees/{id}" route
+func handleGetFollowees(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Get request to get all followees")
 	vars := mux.Vars(r)
-	userIDStr := vars["id"]
-	userID, err := strconv.Atoi(userIDStr)
+	userID, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		http.Error(w, "Invalid User ID", http.StatusBadRequest)
 		return
@@ -62,27 +72,8 @@ func handleGetFollowees(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(followeesJSON))
 }
 
-// CORS Middleware to allow cross-origin requests
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set headers to allow everything
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-
-		// Check if the request method is OPTIONS for preflight request
-		if r.Method == "OPTIONS" {
-			// Respond with 200 OK without passing the request down the handler chain
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Pass the request down the handler chain
-		next.ServeHTTP(w, r)
-	})
-}
-
 func handleFollow(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Get request to do follow")
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -109,6 +100,7 @@ func handleFollow(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUnfollow(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Get request to handle unfollow")
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -136,27 +128,16 @@ func handleUnfollow(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetFollowers(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Extracting the user ID from the URL path
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) < 3 {
-		http.Error(w, "User ID is required", http.StatusBadRequest)
-		return
-	}
-	userIDStr := pathParts[2]
-
-	// Convert userID string to int
-	userID, err := strconv.Atoi(userIDStr)
+	fmt.Println("Get request to get all followers")
+	vars := mux.Vars(r)
+	userID, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		http.Error(w, "Invalid User ID", http.StatusBadRequest)
 		return
 	}
 
 	followersJSON, err := GetFollowers(userID)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -56,7 +56,7 @@ function Register({ onRegisterSuccess, prepopulatedEmail }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8098/auth/users', formData);
+      const response = await axios.post('http://http://a83ab0f0e6671462c87d9c3980002854-1490594495.us-west-2.elb.amazonaws.com/auth/users', formData);
       if (response.status === 201) {
         fetchQRCode(formData.Email); // Fetch the QR code for 2FA setup
       } else {

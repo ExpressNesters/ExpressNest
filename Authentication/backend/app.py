@@ -18,13 +18,14 @@ from firebase_admin import credentials, auth
 import requests
 import logging
 import jwt
+import os
 
 # Inside the registration function
 user_uid = str(uuid.uuid4())
 
-FIREBASE_WEB_API_KEY = 'AIzaSyDSDr_R7qMzgRE5puIOfrisFgYmvVS-XIg'
+FIREBASE_WEB_API_KEY = os.environ.get('FIREBASE_WEB_API_KEY')
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate("auth.json")
+cred = credentials.Certificate(os.environ.get('CREDENTIALS_FILE'))
 firebase_admin.initialize_app(cred)
 
 # Firestore database
@@ -46,12 +47,13 @@ logger = logging.getLogger(__name__)
 def register_user():
     data = request.json
     # Send POST request to external service to get user ID
-    logger.info(data)
-    response = requests.post("http://user-app-1:8088/users", json=data)
+    #logger.info(data)
+    logger.info("Registering User")
+    response = requests.post(os.environ.get('USER_SERVICE_URL'), json=data)
     logger.info(response)
     if response.status_code != 201:
         return jsonify({"error": "Failed to get user ID"}), response.status_code
-    logger.info(response.json())
+    #logger.info(response.json())
     user_id = response.json().get("id")
 
     # Generate a 2FA secret
@@ -74,7 +76,7 @@ def register_user():
     session['username'] = data.get('Username')
     session['email'] = data.get('Email')
     session['user_id'] = user_id  # Assuming user_id is obtained as part of registration
-
+    logger.info("Registeration Successful")
     return jsonify({"email": data.get("Email"), "userID": user_id, "secret": secret,"username":data.get('Username')}), 201
 
 @app.route('/qr_code', methods=['GET'])
@@ -115,7 +117,8 @@ def validate_2fa():
     data = request.json
     user_email = data.get("email")
     token = data.get("token")
-    logging.info(user_email)
+    logger.info("Two factor authentication started")
+
     if not user_email or not token:
         return jsonify({"error": "Email and token are required"}), 400
 
@@ -132,9 +135,10 @@ def validate_2fa():
     if("ROLE" in user_data):
         role = "ADMIN"
     # Verify the 2FA token
-    encoded_jwt = jwt.encode({"ROLE": role,"userID":user_data.get('UserID')}, "expressNesters", algorithm="HS256")
+    encoded_jwt = jwt.encode({"ROLE": role,"userID":user_data.get('UserID')}, os.environ.get('JWT_SECRET'), algorithm="HS256")
+    logger.info("Two factor authentication completed")
     if totp.verify(token):
-        return jsonify({"status":"2FA verified","email": user_email, "username": user_data.get('Username'), "userID": encoded_jwt}), 200
+        return jsonify({"status":"2FA verified","email": user_email, "username": user_data.get('Username'), "userID":user_data.get('UserID'), "jwt" :encoded_jwt}), 200
     else:
         return jsonify({"error": "Invalid 2FA token"}), 400
 
@@ -143,8 +147,7 @@ def validate_2fa_v2():
     data = request.json
     user_email = data.get("email")
     token = data.get("token")
-    logging.info(user_email)
-    logging.info(token)
+    logger.info("Two factor authentication started")
     if not user_email or not token:
         return jsonify({"error": "Email and token are required"}), 400
 
@@ -169,10 +172,11 @@ def validate_2fa_v2():
     if("ROLE" in user_data):
         role = "ADMIN"
     # Verify the 2FA token
-    encoded_jwt = jwt.encode({"ROLE": role,"userID":user_data.get('UserID')}, "expressNesters", algorithm="HS256")
+    encoded_jwt = jwt.encode({"ROLE": role,"userID":user_data.get('UserID')}, os.environ.get('JWT_SECRET'), algorithm="HS256")
+    logger.info("Two factor authentication ended")
     if totp.verify(token):
         logging.info("OKAY")
-        return jsonify({"status":"2FA verified", "email": user_email, "username": user_data.get('Username'), "userID": encoded_jwt}), 200
+        return jsonify({"ROLE": role, "status":"2FA verified", "email": user_email, "username": user_data.get('Username'), "userID":user_data.get('UserID'), "jwt": encoded_jwt}), 200
     else:
         
         return jsonify({"error": "Invalid 2FA token"}), 400
@@ -185,10 +189,13 @@ def login():
     login_type = data.get("type")
 
     if login_type == "email":
+        logger.info("Email authentication")
         return login_with_email(data)
     elif login_type == "google" or login_type == "github":
+        logger.info("Google authentication in progress")
         return login_with_oauth(data, login_type)
     else:
+        logger.info("Invalid login type")
         return jsonify({"error": "Invalid login type"}), 400
 
 

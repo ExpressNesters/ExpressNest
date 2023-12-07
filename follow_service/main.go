@@ -7,13 +7,9 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-)
-func enableCors(w *http.ResponseWriter) {
-   (*w).Header().Set("Access-Control-Allow-Origin", "*")
-   (*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-   (*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-}
 
+	"github.com/gorilla/mux"
+)
 
 func main() {
 	fmt.Println("Follow Service Starting...")
@@ -22,18 +18,71 @@ func main() {
 	InitMongoDB()
 	InitKafkaProducer()
 
-	// Setup routes
-	http.HandleFunc("/follow", handleFollow)
-	http.HandleFunc("/unfollow", handleUnfollow)
-	http.HandleFunc("/followers/", handleGetFollowers) // Note the trailing slash
+	// Initialize the Gorilla Mux router
+	router := mux.NewRouter()
+
+	// Apply CORS middleware to all routes
+	router.Use(corsMiddleware)
+
+	// Define routes
+	router.HandleFunc("/follow", handleFollow).Methods("POST")
+	router.HandleFunc("/unfollow", handleUnfollow).Methods("POST")
+	router.HandleFunc("/followers/{id}", handleGetFollowers).Methods("GET")
+	// Add new route for getting followees
+	router.HandleFunc("/followees/{id}", handleGetFollowees).Methods("GET")
 
 	// Start the server
 	fmt.Println("Listening on port 8089...")
-	log.Fatal(http.ListenAndServe(":8089", nil))
+	log.Fatal(http.ListenAndServe(":8089", router))
+}
+
+// New Handler for Getting Followees
+func handleGetFollowees(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	vars := mux.Vars(r)
+	userIDStr := vars["id"]
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Invalid User ID", http.StatusBadRequest)
+		return
+	}
+
+	followeesJSON, err := GetFollowees(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(followeesJSON))
+}
+
+// CORS Middleware to allow cross-origin requests
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set headers to allow everything
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+		// Check if the request method is OPTIONS for preflight request
+		if r.Method == "OPTIONS" {
+			// Respond with 200 OK without passing the request down the handler chain
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Pass the request down the handler chain
+		next.ServeHTTP(w, r)
+	})
 }
 
 func handleFollow(w http.ResponseWriter, r *http.Request) {
-enableCors(&w)
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -60,7 +109,6 @@ enableCors(&w)
 }
 
 func handleUnfollow(w http.ResponseWriter, r *http.Request) {
-enableCors(&w)
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -88,7 +136,6 @@ enableCors(&w)
 }
 
 func handleGetFollowers(w http.ResponseWriter, r *http.Request) {
-enableCors(&w)
 	if r.Method != "GET" {
 		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
 		return

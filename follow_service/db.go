@@ -132,3 +132,45 @@ func GetFollowers(userID int) (string, error) {
 
 	return string(responseJSON), nil
 }
+
+// New Function to Get Followees
+func GetFollowees(userID int) (string, error) {
+	collection := client.Database("followService").Collection("follows")
+
+	filter := bson.M{"follower_id": userID}
+	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		log.Printf("Error finding followees: %v", err)
+		return "", err
+	}
+	defer cursor.Close(context.TODO())
+
+	var results []bson.M
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		log.Printf("Error getting all results: %v", err)
+		return "", err
+	}
+
+	var followees []int
+	for _, result := range results {
+		if followeeID, ok := result["followee_id"].(int32); ok {
+			followees = append(followees, int(followeeID))
+		} else {
+			log.Printf("Failed to convert followee_id to int32 for result: %v", result)
+		}
+	}
+
+	response := FollowersResponse{
+		UserID:            userID,
+		NumberOfFollowers: len(followees), // Update the field name as per your requirement
+		Followers:         followees,      // Update the field name as per your requirement
+	}
+
+	responseJSON, err := json.Marshal(response)
+	if err != nil {
+		log.Printf("Error marshalling response to JSON: %v", err)
+		return "", err
+	}
+
+	return string(responseJSON), nil
+}

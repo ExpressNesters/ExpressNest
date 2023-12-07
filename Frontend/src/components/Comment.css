@@ -1,26 +1,32 @@
 .comment {
-  background-color: #f8f9fa; /* Light background for each comment */
+  background-color: #f8f9fa;
   padding: 10px 15px;
   margin-bottom: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
-  font-size: 14px; /* Adjust font size for comment text */
+  font-size: 14px;
+}
+
+.comment-user {
+  color: #007bff; /* Blue color for the username */
+  font-weight: bold; /* Bold font for username */
+  margin-right: 10px; /* Spacing between the username and the comment text */
+  font-size: 16px; /* Slightly larger font size for username */
 }
 
 .comment p {
   margin: 0;
   flex-grow: 1;
-  padding-right: 10px; /* Spacing between text and icon */
+  padding-right: 10px;
 }
 
 .comment-delete-icon {
-  color: #dc3545; /* Red color for delete icon */
+  color: #dc3545;
   cursor: pointer;
 }
 
-/* Add hover effect for delete icon for better user interaction */
 .comment-delete-icon:hover {
   color: #bd2130;
 }

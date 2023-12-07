@@ -1,27 +1,41 @@
 /* src/components/Post.css */
 
 .post {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 15px;
-  }
-  
-  .post-content {
-    margin-bottom: 15px;
-  }
-  
-  .post-actions i {
-    cursor: pointer;
-    margin-right: 10px;
-    color: #6c757d; /* Icon color */
-  }
-  
-  .post-actions i:hover {
-    color: #007bff; /* Icon hover color */
-  }
-  
-  
-  /* Add more styles here as needed */
-  
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.post-content {
+  margin-bottom: 15px;
+}
+
+.posted-by {
+  font-size: 0.85em;
+  color: #6c757d;
+  margin-bottom: 10px;
+}
+
+.posted-by span {
+  color: #d35400;
+  font-weight: bold;
+}
+
+.post-actions i {
+  cursor: pointer;
+  margin-right: 15px; /* Increased spacing */
+  color: #28a745; /* New color for edit icon */
+}
+
+.post-actions i:last-child {
+  margin-right: 0; /* Remove margin for the last icon */
+  color: #dc3545; /* New color for delete icon */
+}
+
+.post-actions i:hover {
+  color: #007bff;
+}
+
+/* Add more styles here as needed */

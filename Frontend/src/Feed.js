@@ -3,6 +3,8 @@ import Post from './Post';
 import './Feed.css';
 
 const Feed = ({ userId }) => {
+  console.log(localStorage.getItem('user'))
+
   const [postIds, setPostIds] = useState([]);
   const [visiblePosts, setVisiblePosts] = useState([]);
   const [visiblePostCount, setVisiblePostCount] = useState(2);

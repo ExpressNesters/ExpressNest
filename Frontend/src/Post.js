@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import CommentForm from './components/CommentForm';
@@ -9,11 +11,28 @@ const Post = ({ postData, onPostUpdated }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(postData.postText);
   const [refreshComments, setRefreshComments] = useState(false);
+  const [username, setUsername] = useState('');
   const currentUserId = 1; // Assuming currentUserId is 1, replace with actual logic
 
   const handleEditClick = () => {
     setIsEditing(true);
   };
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const response = await fetch(`http://a83ab0f0e6671462c87d9c3980002854-1490594495.us-west-2.elb.amazonaws.com/users/${postData.userId}`);
+        if (!response.ok) {
+          throw new Error('User data fetch failed');
+        }
+        const data = await response.json();
+        setUsername(data.Username);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUsername();
+  }, [postData.userId]);
 
 
 
@@ -82,22 +101,24 @@ const Post = ({ postData, onPostUpdated }) => {
         <>
           <div className="post-content">
             <p>{postData.postText}</p>
-            <div className="post-actions">
-              {currentUserId === postData.userId && (
-                <>
-                  <FontAwesomeIcon icon={faEdit} onClick={handleEditClick} />
-                  <FontAwesomeIcon icon={faTrash} onClick={handleDeleteClick} />
-                </>
-              )}
-            </div>
+            <div className="posted-by">
+  Posted by <span>{postData.userId === currentUserId ? 'You' : username}</span>
+</div>
           </div>
-          
+          <div className="post-actions">
+            {currentUserId === postData.userId && (
+              <>
+                <FontAwesomeIcon icon={faEdit} onClick={handleEditClick} />
+                <FontAwesomeIcon icon={faTrash} onClick={handleDeleteClick} />
+              </>
+            )}
+          </div>
           <CommentsList postId={postData.postId} userId={currentUserId} refreshTrigger={refreshComments} />
-
         </>
       )}
     </div>
   );
+  
 };
 
 export default Post;

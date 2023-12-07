@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 """####################### REGISTRATION FLOW ############################"""
 
-@app.route('/users', methods=['POST'])
+@app.route('/auth/users', methods=['POST'])
 def register_user():
     data = request.json
     # Send POST request to external service to get user ID
@@ -79,7 +79,7 @@ def register_user():
     logger.info("Registeration Successful")
     return jsonify({"email": data.get("Email"), "userID": user_id, "secret": secret,"username":data.get('Username')}), 201
 
-@app.route('/qr_code', methods=['GET'])
+@app.route('/auth/qr_code', methods=['GET'])
 def qr_code():
     user_email = request.args.get('email')
     if not user_email:
@@ -112,7 +112,7 @@ def qr_code():
     return jsonify({"qr_code": f"data:image/png;base64,{img_str}"})
     return send_file(buf, mimetype='image/jpeg')
 
-@app.route('/validate_2fa', methods=['POST'])
+@app.route('/auth/validate_2fa', methods=['POST'])
 def validate_2fa():
     data = request.json
     user_email = data.get("email")
@@ -142,7 +142,7 @@ def validate_2fa():
     else:
         return jsonify({"error": "Invalid 2FA token"}), 400
 
-@app.route('/validate_2fa_v2', methods=['POST'])
+@app.route('/auth/validate_2fa_v2', methods=['POST'])
 def validate_2fa_v2():
     data = request.json
     user_email = data.get("email")
@@ -183,7 +183,7 @@ def validate_2fa_v2():
 
 """####################### LOGIN FLOW ############################"""
 
-@app.route('/login', methods=['POST'])
+@app.route('/auth/login', methods=['POST'])
 def login():
     data = request.json
     login_type = data.get("type")
@@ -273,7 +273,7 @@ def login_with_oauth(data, provider):
 
 
 """####################### PASSWORD RECOVERY FLOW ############################"""
-@app.route('/request_password_recovery', methods=['POST'])
+@app.route('/auth/request_password_recovery', methods=['POST'])
 def request_password_recovery():
     data = request.json
     user_email = data.get("email")
@@ -310,7 +310,7 @@ def request_password_recovery():
 
     return jsonify({"success": "2FA verification successful, proceed to reset password"}), 200
 
-@app.route('/reset_password', methods=['PUT'])
+@app.route('/auth/reset_password', methods=['PUT'])
 def reset_password():
     data = request.json
     user_email = data.get("email")

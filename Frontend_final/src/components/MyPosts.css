@@ -1,0 +1,69 @@
+/* src/components/MyPosts.css */
+.pagination {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .pagination button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background: none;
+    cursor: pointer;
+  }
+  
+  .pagination button:hover {
+    background-color: #f0f0f0;
+  }
+  /* src/components/MyPosts.css */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .pagination button {
+    background-color: #f2f2f2;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin: 0 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .pagination button:hover {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .pagination button.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .my-posts {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    margin-bottom: 20px; /* Space between posts */
+  }
+  
+  /* Additional styling as needed */
+  .my-posts-container {
+    max-width: 600px; /* Adjust the width as per your preference */
+    margin: 0 auto; /* Centering the container */
+    padding: 20px;
+  }
+  
+ 
+  .my-posts {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+  

@@ -1,0 +1,48 @@
+/* Users.css */
+
+.users-container {
+    margin: 20px auto;
+    max-width: 800px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto auto;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .user-item:last-child {
+    border-bottom: none;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    background-color: #e7f3ff; /* Light blue background for user info */
+    padding: 5px;
+    border-radius: 4px;
+  }
+  
+  .user-info span {
+    margin-right: 15px;
+  }
+  
+  .user-followers {
+    background-color: #e9ffe7; /* Light green background for followers */
+    padding: 5px;
+    border-radius: 4px;
+  }
+  
+  .user-actions {
+    display: flex;
+    align-items: center;
+    justify-self: end;
+  }
+  
+  /* ... rest of the styles for buttons ... */
+  

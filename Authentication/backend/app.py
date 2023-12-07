@@ -138,7 +138,7 @@ def validate_2fa():
     encoded_jwt = jwt.encode({"ROLE": role,"userID":user_data.get('UserID')}, os.environ.get('JWT_SECRET'), algorithm="HS256")
     logger.info("Two factor authentication completed")
     if totp.verify(token):
-        return jsonify({"status":"2FA verified","email": user_email, "username": user_data.get('Username'), "userID":user_data.get('UserID'), "jwt" :encoded_jwt}), 200
+        return jsonify({"status":"2FA verified","ROLE":role,"email": user_email, "username": user_data.get('Username'), "userID":user_data.get('UserID'), "jwt" :encoded_jwt}), 200
     else:
         return jsonify({"error": "Invalid 2FA token"}), 400
 

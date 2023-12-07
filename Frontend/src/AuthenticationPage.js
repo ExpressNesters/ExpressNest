@@ -103,7 +103,7 @@ function AuthenticationPage() {
         dispatch({ type: 'SET_USER', payload: response.data });
       }
     } catch (error) {
-      dispatch({ type: 'SET_MESSAGE', payload: 'Login failed: ' + error.response.data.error });
+      dispatch({ type: 'SET_MESSAGE', payload: 'Login failed: ' });
     }
   };
 

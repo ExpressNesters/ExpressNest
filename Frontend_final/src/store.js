@@ -18,7 +18,7 @@ const userReducer = (state = -1, action) => {
 const roleReducer = (state = 'USER', action) => {
     switch (action.type) {
         case 'SET_ROLE':
-          return action.payload.ROLE //return action.payload.ROLE; // assuming payload is a string representing the user's role
+          return 'USER' //return action.payload.ROLE; // assuming payload is a string representing the user's role
         case 'LOGOUT':
             return 'USER';
         default:

@@ -3,6 +3,9 @@ package edu.sjsu.expressnest.postservice.service;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,7 @@ public class CommentService {
 	private MessageService messageService;
 
 	@Transactional
+	@CachePut(value="Comment", key="#result.createdCommentDTO.commentId")
 	public CreateCommentResponse createComment(CreateCommentRequest createCommentRequest) throws ResourceNotFoundException {
 		long postId = createCommentRequest.getPostId();
 		Post post = postRepository.findById(postId)
@@ -54,6 +58,7 @@ public class CommentService {
 	}
 	
 	@Transactional
+	@CachePut(value="Comment", key="#commentId")
 	public UpdateCommentResponse updateComment(long commentId, UpdateCommentRequest updateCommentRequest) throws ResourceNotFoundException {
 		Comment comment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new ResourceNotFoundException(
@@ -64,6 +69,7 @@ public class CommentService {
 	}
 	
 	@Transactional
+	@CacheEvict(value="Comment", key="#commentId")
 	public DeleteCommentResponse deleteComment(long commentId) throws ResourceNotFoundException {
 		// soft delete
 		Comment comment = commentRepository.findById(commentId)
@@ -80,6 +86,7 @@ public class CommentService {
 		return commentMapper.toDeleteCommentResponse(commentId);
 	}
 	
+	@Cacheable(value="Comment", key="#commentId")
 	public GetCommentResponse getCommentByCommentId(long commentId) throws ResourceNotFoundException {
 		return commentRepository.findById(commentId)
 				.map(commentMapper::toGetCommentResponse)

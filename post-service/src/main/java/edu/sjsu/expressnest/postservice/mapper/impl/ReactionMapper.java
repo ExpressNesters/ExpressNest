@@ -70,7 +70,7 @@ public class ReactionMapper {
 	public DeleteReactionResponse toDeleteReactionResponse(long reactionId) {
 		return DeleteReactionResponse.builder()
 				.reactionId(reactionId)
-				.message(messageService.getMessage(PostServiceConstants.COMMENT_DELETED_INFO_KEY, reactionId))
+				.message(messageService.getMessage(PostServiceConstants.REACTION_DELETED_INFO_KEY, reactionId))
 				.build();
 	}
 	

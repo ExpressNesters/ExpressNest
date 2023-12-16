@@ -3,6 +3,9 @@ package edu.sjsu.expressnest.postservice.service;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,7 @@ public class ReactionService {
 	private MessageService messageService;
 
 	@Transactional
+	@CachePut(value="Reaction", key="#result.createdReactionDTO.reactionId")
 	public CreateReactionResponse createReaction(CreateReactionRequest createReactionRequest) throws ResourceNotFoundException {
 		long postId = createReactionRequest.getPostId();
 		Post post = postRepository.findById(postId)
@@ -54,6 +58,7 @@ public class ReactionService {
 	}
 	
 	@Transactional
+	@CachePut(value="Reaction", key="#reactionId")
 	public UpdateReactionResponse updateReaction(long reactionId, UpdateReactionRequest updateReactionRequest) throws ResourceNotFoundException {
 		Reaction reaction = reactionRepository.findById(reactionId)
 				.orElseThrow(() -> new ResourceNotFoundException(
@@ -64,6 +69,7 @@ public class ReactionService {
 	}
 	
 	@Transactional
+	@CacheEvict(value="Reaction", key="#reactionId")
 	public DeleteReactionResponse deleteReaction(long reactionId) throws ResourceNotFoundException {
 		// soft delete
 		Reaction reaction = reactionRepository.findById(reactionId)
@@ -80,6 +86,7 @@ public class ReactionService {
 		return reactionMapper.toDeleteReactionResponse(reactionId);
 	}
 	
+	@Cacheable(value="Reaction", key="#reactionId")
 	public GetReactionResponse getReactionByReactionId(long reactionId) throws ResourceNotFoundException {
 		return reactionRepository.findById(reactionId)
 				.map(reactionMapper::toGetReactionResponse)

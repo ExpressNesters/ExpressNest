@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: post-postgres-configmap
-data:
-  post-postgres-database: "expressnestpostdb"

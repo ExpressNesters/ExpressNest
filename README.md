@@ -9,6 +9,6 @@
 | 3️⃣  | Sanjay Bhargav Kudupudi |
 
 
-## 📚 Deliverables(We have completed everything including deployments!(Bonus))
+## 📚 Deliverables
 
 - 📑 [Project Report](https://github.com/ExpressNesters/ExpressNest/blob/main/CMPE_272_Report.pdf)

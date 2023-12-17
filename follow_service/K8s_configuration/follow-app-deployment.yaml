@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: follow-app-container
-          image: neeharikasingh/follow-app:0.2
+          image: neeharikasingh/follow-app:0.5
           ports:
             - containerPort: 8089
           env:

@@ -16,8 +16,8 @@ services:
       KAFKA_USERNAME: 34DH7DSL6GRCBCM6
       KAFKA_PASSWORD: +wdgF4DcTxg7SblSs2uLrx2gdvHWawvbz7TluC/Q74yHrlT8l+fIdrxGg4wX56rM
       POST_EVENTS_TOPIC: post-events-dev
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - db
       - redis

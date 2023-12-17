@@ -6,6 +6,7 @@ data:
   nginx.conf: |
     events {}
     http {
+      include mime.types;
       log_format my_format '$remote_addr - $remote_user [$time_local] "$request" '
                                                         '$status $body_bytes_sent "$http_referer" '
                                                         '"$http_user_agent" $request_time';
@@ -14,7 +15,6 @@ data:
       error_log /var/log/nginx/error.log warn;
       server {
         listen 8080;
-
         location /posts/ {
           proxy_pass http://post-app-service:8080/posts/;
         }
@@ -38,8 +38,22 @@ data:
         location /followers/ {
             proxy_pass http://follow-app-service:8089/followers/;
         }
+        location /followees/ {
+            proxy_pass http://follow-app-service:8089/followees/;
+        }
+        location /auth/ {
+            proxy_pass http://auth-app-service:8098/auth/;
+        }
         location /users {
             proxy_pass http://upm-app-service:8088/users;
+        }
+        location /user-products/ {
+            proxy_pass http://ups-app-service:8082/user-products/;
+        }
+        location / {
+            add_header Content-Security-Policy "default-src * data:; script-src * 'unsafe-inline'; style-src * 'unsafe-inline'";
+            index index.html;
+            try_files $uri $uri/ /index.html;
         }
       }
       
